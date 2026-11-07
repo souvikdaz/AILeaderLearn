@@ -14,6 +14,11 @@ def test_load_diagnostic_questions():
     # Verify code reading questions exist
     code_reading = [q for q in questions if q.get("is_code_reading")]
     assert len(code_reading) >= 3
+    # Verify every question has "I don't know" as an option
+    for q in questions:
+        assert "options" in q
+        assert "I don't know" in q["options"]
+        assert q["options"][-1] == "I don't know"
 
 def test_score_placement_answers():
     questions = load_diagnostic_questions()
@@ -105,3 +110,38 @@ def test_diagnostic_draft_lifecycle():
         # 5. Diagnostic is completed, draft is purged
         assert has_completed_diagnostic("draft_user", db_path=db_path) is True
         assert get_diagnostic_draft("draft_user", db_path=db_path) == {}
+
+def test_diagnostic_i_dont_know_option():
+    """Verifies that selecting 'I don't know' across questions scores 0 without errors."""
+    questions = load_diagnostic_questions()
+    
+    # 1. Answer "I don't know" for every question
+    idk_answers = {}
+    for q in questions:
+        idk_index = q["options"].index("I don't know")
+        idk_answers[q["id"]] = idk_index
+        
+    result = score_placement_answers(idk_answers, questions)
+    assert result["total_score"] == 0.0
+    assert result["total_correct"] == 0
+    assert result["total_questions"] == len(questions)
+    assert result["tested_out_modules"] == []
+    assert result["starting_module"] == "module_1"
+    
+    # Verify details reflect "I don't know" selection
+    for detail in result["details"]:
+        assert detail["is_correct"] is False
+        
+    # 2. Mixed: perfect in excel_reporting, but "I don't know" for all others
+    mixed_answers = {}
+    for q in questions:
+        if q["category"] == "excel_reporting":
+            mixed_answers[q["id"]] = q["correct_index"]
+        else:
+            mixed_answers[q["id"]] = q["options"].index("I don't know")
+            
+    mixed_res = score_placement_answers(mixed_answers, questions)
+    assert mixed_res["category_scores"]["excel_reporting"]["pct"] == 100.0
+    assert "module_1" in mixed_res["tested_out_modules"]
+    assert "module_2" not in mixed_res["tested_out_modules"]
+    assert mixed_res["starting_module"] == "module_2"

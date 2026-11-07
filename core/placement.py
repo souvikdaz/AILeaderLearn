@@ -8,12 +8,18 @@ from core.db import execute_query, execute_write
 DIAGNOSTIC_PATH = CONTENT_DIR / "diagnostic" / "placement_questions.yaml"
 
 def load_diagnostic_questions() -> List[Dict[str, Any]]:
-    """Loads all placement questions from YAML."""
+    """Loads all placement questions from YAML, ensuring 'I don't know' is present for each question."""
     if not DIAGNOSTIC_PATH.exists():
         return []
     with open(DIAGNOSTIC_PATH, "r", encoding="utf-8") as f:
         data = yaml.safe_load(f)
-    return data.get("questions", [])
+    questions = data.get("questions", [])
+    for q in questions:
+        opts = list(q.get("options", []))
+        if "I don't know" not in opts:
+            opts.append("I don't know")
+        q["options"] = opts
+    return questions
 
 def score_placement_answers(
     answers: Dict[str, int], 

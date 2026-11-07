@@ -16,7 +16,7 @@ from core.db import get_learner
 
 st.title("🧭 Placement Diagnostic")
 st.markdown(
-    "This 22-question diagnostic benchmarks your foundational knowledge across **Excel to Architecture**, "
+    "This diagnostic benchmarks your foundational knowledge across **Excel to Architecture**, "
     "**SQL Query Reading**, **Python/pandas**, **AI Concepts**, and **Leadership Scenarios**. "
     "Your score determines your custom starting module and allows you to test out of passed foundational modules."
 )
@@ -74,7 +74,9 @@ else:
     # Mandatory Diagnostic Notice & Progress Banner
     st.info(
         "🔒 **Mandatory Baseline Assessment:** This diagnostic must be submitted to unlock your executive dashboard and curriculum. "
-        "You can save your progress and return at any time if you cannot finish in one sitting."
+        "You can save your progress and return at any time if you cannot finish in one sitting.\n\n"
+        "💡 **Honest Placement:** If you are unsure of an answer, please select **\"I don't know\"** rather than guessing randomly. "
+        "This guarantees you receive targeted instruction on concepts you need rather than artificial placement."
     )
     
     # Progress Bar

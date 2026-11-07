@@ -119,7 +119,9 @@ with st.sidebar:
                 st.warning("🧭 **Step 1: Diagnostic Required**\n\nComplete and submit your Placement Diagnostic to unlock your custom curriculum and dashboard.")
                 drafts = get_diagnostic_draft(selected_id)
                 saved_count = len(drafts)
-                st.progress(saved_count / 22.0, text=f"Diagnostic: {saved_count}/22 saved")
+                total_diag_q = 23
+                progress_val = min(1.0, saved_count / float(total_diag_q))
+                st.progress(progress_val, text=f"Diagnostic: {saved_count}/{total_diag_q} saved")
                 st.caption(f"Commitment: {learner_info.get('hours_per_week', 10)} hrs/week")
             else:
                 metrics = calculate_learner_metrics(selected_id)
