@@ -20,7 +20,8 @@ def send_password_recovery_email(to_email: str, learner_name: str, password: str
     smtp_host = os.getenv("SMTP_HOST", "").strip()
     smtp_port = int(os.getenv("SMTP_PORT", "587"))
     smtp_user = os.getenv("SMTP_USER", "").strip()
-    smtp_pass = os.getenv("SMTP_PASSWORD", "").strip()
+    # Strip spaces in case 16-character app password contains spaces (e.g. Gmail)
+    smtp_pass = os.getenv("SMTP_PASSWORD", "").replace(" ", "").strip()
     from_email = os.getenv("SMTP_FROM_EMAIL", smtp_user or "noreply@aileaderlearn.com").strip()
     
     subject = "🔐 AI Leader Learn: Your Account Password Recovery"
