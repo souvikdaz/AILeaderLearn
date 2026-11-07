@@ -1,0 +1,55 @@
+project_id: "m9_project"
+module_id: "module_9"
+title: "Project 9: Enterprise AI Workflow Prototype & Risk Assessment"
+phase_id: "phase_3"
+allowed_extensions: [".md", ".docx", ".pdf", ".txt"]
+min_words: 350
+max_words: 1500
+
+scenario: >
+  Your CEO wants to deploy a Generative AI Customer Support Assistant across 250,000 monthly user inquiries. 
+  The proposal from a consulting agency recommends sending raw customer ticket text directly to an external frontier LLM API 
+  with no PII masking, no vector search retrieval, and no output guardrails.
+  
+  Deliverable:
+  Submit a comprehensive Technical Leadership Blueprint:
+  1. End-to-End Architecture: Detailed RAG pipeline specification (chunking parameters, embedding model, vector database, and prompt template with strict system guardrails).
+  2. Enterprise Risk Assessment: Identification of top 3 failure modes (PII data leakage, prompt injection, hallucinated commitments) with concrete technical mitigation protocols.
+  3. Token Unit Economics: Calculate estimated monthly API costs assuming 250,000 tickets, 800 input tokens, and 150 output tokens per ticket.
+
+required_sections:
+  - "Executive Summary & Business Context"
+  - "RAG Architecture Specification & Chunking Strategy"
+  - "System Prompt Template & Structured JSON Schema"
+  - "Generative AI Risk Assessment & Guardrail Matrix"
+  - "Token Economics & Monthly Budget Model"
+
+required_keywords:
+  - "RAG"
+  - "token"
+  - "prompt injection"
+  - "PII"
+  - "guardrails"
+
+rubric:
+  criteria:
+    - id: "architecture_soundness"
+      name: "RAG Architecture & Technical Depth"
+      weight: 25
+      pass_threshold: 20
+      description: "Does the blueprint articulate sound chunking, embedding, vector retrieval, and delimiter separation?"
+    - id: "risk_governance"
+      name: "Risk Governance & Guardrail Mitigation"
+      weight: 25
+      pass_threshold: 20
+      description: "Does the assessment address prompt injection, PII leakage, and output validation with concrete technical solutions?"
+    - id: "token_economics"
+      name: "Financial Modeling & Token Unit Economics"
+      weight: 25
+      pass_threshold: 20
+      description: "Are token costs calculated realistically with input vs output pricing and cost containment strategies?"
+    - id: "executive_readability"
+      name: "Structure, Conciseness & C-Suite Tone"
+      weight: 25
+      pass_threshold: 20
+      description: "Is the brief formatted with clear executive headings, bulleted takeaways, and actionable leadership decisions?"

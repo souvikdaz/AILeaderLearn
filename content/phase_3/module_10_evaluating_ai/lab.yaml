@@ -1,0 +1,51 @@
+lab_id: "m10_lab"
+module_id: "module_10"
+title: "Lab 10: 30-Item Golden Benchmark Evaluation & Hallucination Audit"
+type: "sql"
+runner: "duckdb"
+database_tables:
+  llm_eval_testset: "content/sample_data/llm_eval_testset.csv"
+
+brief: >
+  Your engineering team deployed a prompt update for an enterprise customer service AI assistant. 
+  Before clearing the update for production rollout, you must evaluate the model's outputs against 
+  the 30-item golden test benchmark (`llm_eval_testset`).
+  
+  Your task:
+  1. Query `llm_eval_testset`.
+  2. Calculate total evaluated items, overall Groundedness percentage, Factual Accuracy percentage, and Hallucination Rate percentage grouped by `query_type`.
+  3. Filter to identify query categories that exceed the executive tolerance threshold of a 10% hallucination rate.
+  4. Order by `hallucination_rate_pct DESC`.
+  5. Answer the 'explain this line' check on hallucination rate calculation.
+
+starter_code: |
+  -- Calculate AI evaluation benchmark metrics by query type:
+  SELECT 
+      query_type,
+      COUNT(*) AS total_items,
+      AVG(is_grounded) AS grounded_rate,
+      AVG(has_hallucination) AS hallucination_rate
+  FROM llm_eval_testset
+  GROUP BY query_type;
+
+expected_query: |
+  SELECT 
+      query_type,
+      COUNT(*) AS total_items,
+      ROUND(AVG(is_grounded) * 100.0, 1) AS grounded_pct,
+      ROUND(AVG(is_accurate) * 100.0, 1) AS accuracy_pct,
+      ROUND(AVG(has_hallucination) * 100.0, 1) AS hallucination_rate_pct
+  FROM llm_eval_testset
+  GROUP BY query_type
+  HAVING (AVG(has_hallucination) * 100.0) >= 10.0
+  ORDER BY hallucination_rate_pct DESC;
+
+expected_columns: ["query_type", "total_items", "grounded_pct", "accuracy_pct", "hallucination_rate_pct"]
+expected_min_rows: 2
+
+explain_line_check:
+  line_number: 6
+  target_line: "ROUND(AVG(has_hallucination) * 100.0, 1) AS hallucination_rate_pct"
+  prompt: "Explain how this metric is calculated and why an executive committee needs to see Hallucination Rate segregated by query type rather than as a single blended company average."
+  rubric_keywords: ["hallucination", "average", "query_type", "mask", "category", "risk", "blended"]
+  sample_good_answer: "Calculating the average of the binary hallucination flag yields the hallucination proportion. Segregating by query_type is critical because a blended 95% overall score can mask dangerous 35% hallucination rates in high-liability categories like Billing or Security."

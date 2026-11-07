@@ -18,19 +18,19 @@ if not learner_id:
 learner = get_learner(learner_id)
 track = load_track_config()
 
-# Module selector (Only accessible or in_progress modules)
-p1_modules = track.get("phases", [])[0].get("modules", [])
-accessible_modules = []
-for m in p1_modules:
-    mid = m["id"]
-    st_info = get_module_status(learner_id, mid)
-    if st_info.get("status") in ["in_progress", "passed", "tested_out", "needs_review"]:
-        accessible_modules.append(m)
+# Module selector (Any accessible module across phases)
+all_modules = []
+for phase in track.get("phases", []):
+    for m in phase.get("modules", []):
+        mid = m["id"]
+        st_info = get_module_status(learner_id, mid)
+        if st_info.get("status") in ["in_progress", "passed", "tested_out", "needs_review"]:
+            all_modules.append(m)
 
-if not accessible_modules:
-    accessible_modules = [p1_modules[0]] # fallback to module 1
+if not all_modules:
+    all_modules = [track.get("phases", [])[0].get("modules", [])[0]]
 
-mod_options = {m["id"]: f"{m.get('code', 'M')}: {m['title']}" for m in accessible_modules}
+mod_options = {m["id"]: f"{m.get('code', 'M')}: {m['title']}" for m in all_modules}
 selected_module_id = st.selectbox(
     "Select Module:",
     options=list(mod_options.keys()),

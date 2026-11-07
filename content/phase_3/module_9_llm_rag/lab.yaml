@@ -1,0 +1,67 @@
+lab_id: "m9_lab"
+module_id: "module_9"
+title: "Lab 9: RAG Chunking Strategy & Prompt Guardrail Implementation"
+type: "python"
+runner: "python"
+
+brief: >
+  Your engineering team is deploying an internal HR and policy RAG assistant. 
+  However, the current script splits documents using hard character counts without overlap, 
+  cutting sentences in half and causing the LLM to answer 'I do not have enough context' for queries near boundaries.
+  
+  Your task:
+  1. Complete the sliding window chunking function `chunk_document_with_overlap()`.
+  2. Implement an overlap of 20 words between consecutive chunks.
+  3. Format the retrieved context into an augmented prompt with strict XML delimiters `<context>...</context>`.
+  4. Run the script in the Python sandbox.
+  5. Answer the 'explain this line' check on semantic overlap.
+
+starter_code: |
+  # Build a resilient sliding window chunker for enterprise RAG:
+  doc_text = """Section 4.1 Enterprise SLA: Uptime is guaranteed at 99.9% excluding planned maintenance. 
+  Section 4.2 Escalations: Severity 1 outages require engineering response within 15 minutes. 
+  Section 4.3 Credits: Accounts experiencing availability below 99.0% are eligible for a 25% monthly billing credit."""
+
+  def chunk_document_with_overlap(text: str, chunk_size: int = 15, overlap: int = 5):
+      words = text.split()
+      chunks = []
+      # Fix this loop to generate sliding window chunks with overlap:
+      for i in range(0, len(words), chunk_size):
+          chunk = " ".join(words[i:i + chunk_size])
+          chunks.append(chunk)
+      return chunks
+
+  chunks = chunk_document_with_overlap(doc_text, chunk_size=15, overlap=5)
+  print(f"Total Chunks Generated: {len(chunks)}")
+  for idx, c in enumerate(chunks):
+      print(f"Chunk {idx+1}: {c}")
+
+expected_solution: |
+  doc_text = """Section 4.1 Enterprise SLA: Uptime is guaranteed at 99.9% excluding planned maintenance. 
+  Section 4.2 Escalations: Severity 1 outages require engineering response within 15 minutes. 
+  Section 4.3 Credits: Accounts experiencing availability below 99.0% are eligible for a 25% monthly billing credit."""
+
+  def chunk_document_with_overlap(text: str, chunk_size: int = 15, overlap: int = 5):
+      words = text.split()
+      chunks = []
+      step = max(1, chunk_size - overlap)
+      for i in range(0, len(words), step):
+          chunk = " ".join(words[i:i + chunk_size])
+          chunks.append(chunk)
+          if i + chunk_size >= len(words):
+              break
+      return chunks
+
+  chunks = chunk_document_with_overlap(doc_text, chunk_size=15, overlap=5)
+  print(f"Total Chunks Generated: {len(chunks)}")
+  for idx, c in enumerate(chunks):
+      print(f"Chunk {idx+1}: {c}")
+
+expected_output_contains: ["Total Chunks Generated", "Chunk 1", "Chunk 2", "Section 4.1"]
+
+explain_line_check:
+  line_number: 10
+  target_line: "step = max(1, chunk_size - overlap)"
+  prompt: "Explain why the sliding window step must equal (chunk_size - overlap) and what business risk occurs in a RAG system if overlap is zero."
+  rubric_keywords: ["step", "overlap", "boundary", "context", "split", "sentence", "retrieval"]
+  sample_good_answer: "The step size determines how far the window advances. Subtracting the overlap ensures that consecutive chunks share boundary words, preventing crucial policy clauses from being split in half and missed during vector search."

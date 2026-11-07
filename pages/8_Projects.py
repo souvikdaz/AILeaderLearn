@@ -21,9 +21,25 @@ if not learner_id:
 learner = get_learner(learner_id)
 track = load_track_config()
 
-# Module selector (Phase 1 modules)
-p1_mods = track.get("phases", [])[0].get("modules", [])
-mod_options = {m["id"]: f"{m.get('code', 'M')}: {m['title']}" for m in p1_mods}
+# Find all modules with authored project.yaml files across all phases
+authored_projects = {}
+for p_dir in sorted(CONTENT_DIR.iterdir()):
+    if p_dir.is_dir() and p_dir.name.startswith("phase_"):
+        for m_dir in sorted(p_dir.iterdir()):
+            if m_dir.is_dir() and (m_dir / "project.yaml").exists():
+                with open(m_dir / "project.yaml", "r", encoding="utf-8") as f:
+                    pdata = yaml.safe_load(f)
+                    mid = pdata.get("module_id")
+                    if mid:
+                        authored_projects[mid] = pdata
+
+all_track_mods = []
+for phase in track.get("phases", []):
+    for m in phase.get("modules", []):
+        if m["id"] in authored_projects:
+            all_track_mods.append(m)
+
+mod_options = {m["id"]: f"{m.get('code', 'M')}: {m['title']}" for m in all_track_mods}
 selected_module_id = st.selectbox(
     "Select Project Module:",
     options=list(mod_options.keys()),
@@ -31,16 +47,7 @@ selected_module_id = st.selectbox(
     key="project_module_selector"
 )
 
-# Load project YAML
-proj_data = None
-for sub in (CONTENT_DIR / "phase_1").iterdir():
-    if sub.is_dir() and (sub / "project.yaml").exists():
-        with open(sub / "project.yaml", "r", encoding="utf-8") as f:
-            data = yaml.safe_load(f)
-        if data.get("module_id") == selected_module_id:
-            proj_data = data
-            break
-
+proj_data = authored_projects.get(selected_module_id)
 if not proj_data:
     st.info("Project brief is currently being loaded for this module.")
     st.stop()

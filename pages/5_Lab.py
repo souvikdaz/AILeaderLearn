@@ -20,9 +20,26 @@ if not learner_id:
 learner = get_learner(learner_id)
 track = load_track_config()
 
-# Module selector (Accessible Phase 1 modules)
-p1_mods = track.get("phases", [])[0].get("modules", [])
-mod_options = {m["id"]: f"{m.get('code', 'M')}: {m['title']}" for m in p1_mods}
+# Find all modules with authored lab.yaml files across all phases
+authored_labs = {}
+for p_dir in sorted(CONTENT_DIR.iterdir()):
+    if p_dir.is_dir() and p_dir.name.startswith("phase_"):
+        for m_dir in sorted(p_dir.iterdir()):
+            if m_dir.is_dir() and (m_dir / "lab.yaml").exists():
+                with open(m_dir / "lab.yaml", "r", encoding="utf-8") as f:
+                    ldata = yaml.safe_load(f)
+                    mid = ldata.get("module_id")
+                    if mid:
+                        authored_labs[mid] = ldata
+
+# Build module options from track config for those with labs
+all_track_mods = []
+for phase in track.get("phases", []):
+    for m in phase.get("modules", []):
+        if m["id"] in authored_labs:
+            all_track_mods.append(m)
+
+mod_options = {m["id"]: f"{m.get('code', 'M')}: {m['title']}" for m in all_track_mods}
 selected_module_id = st.selectbox(
     "Select Lab Module:",
     options=list(mod_options.keys()),
@@ -30,16 +47,8 @@ selected_module_id = st.selectbox(
     key="lab_module_selector"
 )
 
-# Load lab YAML for this module
-lab_file = None
-for sub in (CONTENT_DIR / "phase_1").iterdir():
-    if sub.is_dir() and (sub / "lab.yaml").exists():
-        with open(sub / "lab.yaml", "r", encoding="utf-8") as f:
-            data = yaml.safe_load(f)
-        if data.get("module_id") == selected_module_id:
-            lab_data = data
-            break
-else:
+lab_data = authored_labs.get(selected_module_id)
+if not lab_data:
     st.info("Lab specifications are currently being outlined for this module.")
     st.stop()
 

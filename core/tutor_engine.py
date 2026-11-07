@@ -7,18 +7,18 @@ from config.settings import CONTENT_DIR, GEMINI_API_KEY, OPENAI_API_KEY
 from core.db import execute_query, execute_write
 
 def load_module_lessons(module_id: str) -> List[Dict[str, Any]]:
-    """Loads all lessons for a given module."""
-    # Find module directory in phase_1
-    mod_dir = CONTENT_DIR / "phase_1"
-    for sub in mod_dir.iterdir():
-        if sub.is_dir():
-            yaml_file = sub / "lessons.yaml"
-            if yaml_file.exists():
-                import yaml
-                with open(yaml_file, "r", encoding="utf-8") as f:
-                    data = yaml.safe_load(f)
-                if data.get("module_id") == module_id:
-                    return data.get("lessons", [])
+    """Loads all lessons for a given module across any phase directory."""
+    for phase_dir in CONTENT_DIR.iterdir():
+        if phase_dir.is_dir():
+            for sub in phase_dir.iterdir():
+                if sub.is_dir():
+                    yaml_file = sub / "lessons.yaml"
+                    if yaml_file.exists():
+                        import yaml
+                        with open(yaml_file, "r", encoding="utf-8") as f:
+                            data = yaml.safe_load(f)
+                        if data.get("module_id") == module_id:
+                            return data.get("lessons", [])
     return []
 
 def get_lesson_progress(learner_id: str, module_id: str, lesson_id: str, db_path: Optional[Path] = None) -> Dict[str, Any]:

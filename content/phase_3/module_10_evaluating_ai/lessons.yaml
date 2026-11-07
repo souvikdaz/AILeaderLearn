@@ -1,0 +1,204 @@
+module_id: "module_10"
+title: "Evaluating AI Output & Benchmark Design"
+phase_id: "phase_3"
+description: "Build automated LLM-as-a-Judge frameworks, quantify hallucination rates, and evaluate generative AI features against golden test benchmarks."
+
+lessons:
+  - id: "m10_l1"
+    title: "Automated LLM-as-a-Judge & Human-in-the-Loop"
+    estimated_minutes: 15
+    concept: "Automated AI Evaluation vs Human-in-the-Loop Verification"
+    definition: "LLM-as-a-Judge is an automated evaluation technique where an independent, highly capable foundation model evaluates candidate AI outputs against a rigorous rubric and reference answers."
+    why_it_matters: "Human review of thousands of AI responses is too slow and expensive for continuous deployment, while simple string-matching cannot evaluate nuanced semantic meaning."
+    analogy: "LLM-as-a-Judge is like having a senior copy editor quickly review drafts against a style guide before final sign-off."
+    explanation: >
+      How do you know if your engineering team's prompt change actually improved your AI feature or quietly made it worse? 
+      In traditional software, unit tests check exact numbers. 
+      In generative AI, outputs vary syntactically even when they mean the same thing. 
+      Leaders employ a dual-track evaluation framework:
+      1) LLM-as-a-Judge: An automated evaluation pipeline passes both the candidate response and audited reference answer to a judge model with a rubric scoring Factual Accuracy, Groundedness, and Tone (1 to 5 scale).
+      2) Human-in-the-Loop (HITL): Human domain experts audit a randomized 5% sample and all flagged edge cases to calibrate the automated judge and catch subtle domain errors.
+    worked_example:
+      context: "An automated LLM-as-a-Judge scoring prompt."
+      code_or_query: |
+        eval_judge_prompt = """
+        You are an impartial AI evaluation judge.
+        Evaluate the candidate response against the reference ground truth.
+        Score from 1 to 5 on:
+        1. Factual Accuracy: Does the candidate contradict the reference?
+        2. Groundedness: Are all claimed facts directly supported by the context?
+        Return a structured JSON with scores and identified hallucinations.
+        """
+      line_by_line:
+        - line: "You are an impartial AI evaluation judge."
+          explanation: "Sets an objective evaluation persona separate from the generator model."
+        - line: "Evaluate the candidate response against the reference ground truth."
+          explanation: "Anchors evaluation strictly against the verified source answer rather than general model knowledge."
+        - line: "Score from 1 to 5 on Factual Accuracy and Groundedness"
+          explanation: "Converts qualitative textual impressions into quantitative metrics tracked on executive dashboards."
+        - line: "Return a structured JSON with scores and identified hallucinations."
+          explanation: "Produces structured evaluation telemetry for CI/CD pipeline blocking."
+    leader_questions:
+      what_to_ask: "What is our automated evaluation pass rate across our regression test set before deploying prompt changes?"
+      good_answer: "Every prompt change must pass a 95%+ factual score across our 250-item golden benchmark evaluated by our automated judge pipeline."
+      red_flag: "The engineers test 3 prompts manually in the playground and push to production if they look okay."
+    check_questions:
+      - id: "m10_l1_q1"
+        prompt: "Why is 'LLM-as-a-Judge' combined with human sampling preferred over relying solely on manual human review for enterprise AI testing?"
+        options:
+          - "Because human reviewers are illegal under cloud security frameworks."
+          - "Because automated judges provide rapid, scalable continuous integration testing across hundreds of edge cases, while human auditing keeps the judge calibrated."
+          - "Because models always agree 100% with humans on every topic."
+          - "Because automated judges eliminate the need for test datasets."
+        correct_index: 1
+        misconception_name: "False Dichotomy between Automated and Human Evaluation"
+        error_type: "eval_framework"
+        re_teach: "Scalable AI leadership combines automated continuous evaluation benchmarks with periodic human calibration to catch subtle domain drift."
+
+  - id: "m10_l2"
+    title: "Quantifying Groundedness, Relevance & Hallucination Rates"
+    estimated_minutes: 15
+    concept: "The RAG Triad: Groundedness, Relevance, and Hallucination Quantification"
+    definition: "Groundedness measures whether every fact in an AI response is traceable to retrieved context; Relevance measures whether the response directly addresses the user's question; Hallucination Rate is the percentage of generated assertions lacking source verification."
+    why_it_matters: "A response can be completely relevant to a customer's question while being a total hallucination that promises unauthorized refunds."
+    analogy: "Relevance is answering the question asked; Groundedness is citing the actual contract; Hallucination is inventing a creative answer from thin air."
+    explanation: >
+      To govern generative AI rigorously, analytics leaders monitor the RAG Triad:
+      1) Context Relevance: Did the retrieval engine fetch documents that actually answer the user's prompt, or irrelevant noise?
+      2) Groundedness (Faithfulness): Are all claims in the generated response supported by the retrieved text? If the context mentions 14 days and the model says 30 days, it is ungrounded.
+      3) Answer Relevance: Does the generated text directly resolve the user's inquiry without extraneous fluff?
+      On executive dashboards, track Hallucination Rate as a core operational risk metric:
+      `Hallucination Rate = (Responses with >= 1 Unverified Claim) / (Total Evaluated Responses)`. 
+      In commercial enterprise deployments, the target hallucination rate must be strictly under 2%.
+    worked_example:
+      context: "Mathematical formulation of AI feature quality metrics in SQL/DuckDB."
+      code_or_query: |
+        SELECT 
+            COUNT(*) AS total_evaluated_queries,
+            ROUND(AVG(is_grounded) * 100.0, 1) AS groundedness_pct,
+            ROUND(AVG(is_accurate) * 100.0, 1) AS factual_accuracy_pct,
+            ROUND(AVG(has_hallucination) * 100.0, 1) AS hallucination_rate_pct
+        FROM llm_eval_testset;
+      line_by_line:
+        - line: "COUNT(*) AS total_evaluated_queries,"
+          explanation: "Verifies sample size across the golden benchmark evaluation suite."
+        - line: "ROUND(AVG(is_grounded) * 100.0, 1) AS groundedness_pct,"
+          explanation: "Measures the proportion of outputs strictly faithful to provided company documents."
+        - line: "ROUND(AVG(is_accurate) * 100.0, 1) AS factual_accuracy_pct,"
+          explanation: "Audits semantic truth against verified reference ground truth."
+        - line: "ROUND(AVG(has_hallucination) * 100.0, 1) AS hallucination_rate_pct"
+          explanation: "The premier C-suite risk metric; must remain below enterprise tolerance thresholds."
+    leader_questions:
+      what_to_ask: "What is our measured hallucination rate on our golden benchmark, and what is our containment protocol when an ungrounded claim occurs?"
+      good_answer: "Our benchmark hallucination rate is 1.6%. When confidence drops below 0.85, the system falls back to an audited FAQ or routes to a human agent."
+      red_flag: "We haven't measured hallucination rate quantitatively because our users haven't complained yet."
+    check_questions:
+      - id: "m10_l2_q1"
+        prompt: "Can an AI response be 100% Relevant while simultaneously suffering from a severe Hallucination?"
+        options:
+          - "No, if an answer is relevant, it is mathematically impossible for it to hallucinate."
+          - "Yes: an answer can directly address the user's specific question (high relevance) while fabricating a completely false policy or discount percentage (hallucination)."
+          - "Only in open-source models, never in proprietary commercial APIs."
+          - "Relevance and hallucination are the exact same metric."
+        correct_index: 1
+        misconception_name: "Conflating Question Relevance with Factual Truth"
+        error_type: "metric_distinction"
+        re_teach: "Relevance measures whether the answer addressed the topic; Groundedness measures whether the facts are true. A model can give an eloquent, relevant answer that is completely invented."
+
+  - id: "m10_l3"
+    title: "Designing the 30-Item Golden Evaluation Benchmark"
+    estimated_minutes: 15
+    concept: "Curating a Golden Evaluation Test Set"
+    definition: "A golden evaluation benchmark is a curated collection of diverse, challenging real-world queries paired with audited ground-truth answers used as a permanent quality gate."
+    why_it_matters: "Without a golden test set, AI application upgrades are flying blind—every prompt tweak or model update risks breaking previously working answers."
+    analogy: "A golden benchmark is like the bar exam: every prospective lawyer must pass the exact same standardized test before practicing law."
+    explanation: >
+      A data leader must never allow software teams to deploy AI models without a Golden Test Set. 
+      A robust 30-item enterprise benchmark must not consist of easy softball questions. 
+      It must be intentionally designed across 5 difficulty tiers:
+      1) Standard Factual Queries: 10 routine policy and product inquiries.
+      2) Edge Cases & Boundary Conditions: 5 queries testing extreme dates, max limits, and null states.
+      3) Multi-Document Synthesis: 5 queries requiring combining facts from two separate sections.
+      4) Adversarial & Out-of-Scope Queries: 5 queries testing prompt injection attempts and questions the model must refuse to answer.
+      5) Nuanced Policy Distinctions: 5 queries where similar-sounding words mean completely different legal liabilities.
+    worked_example:
+      context: "Categorizing test items in the 30-item evaluation benchmark."
+      code_or_query: |
+        -- Benchmark Test Distribution:
+        -- Tier 1 (40%): High-volume recurring transactional inquiries (Billing, Account)
+        -- Tier 2 (20%): Technical architecture specifications & limits
+        -- Tier 3 (20%): Regulatory compliance, data residency & GDPR boundaries
+        -- Tier 4 (20%): Negative constraints & out-of-scope refusals
+      line_by_line:
+        - line: "Tier 1 (40%): High-volume recurring transactional inquiries"
+          explanation: "Verifies performance on the core 80% of daily commercial customer touchpoints."
+        - line: "Tier 2 (20%): Technical architecture specifications & limits"
+          explanation: "Tests exact numeric thresholds where hallucinations cause technical failures."
+        - line: "Tier 3 (20%): Regulatory compliance & GDPR boundaries"
+          explanation: "Validates high-liability regulatory commitments (e.g. data storage geography)."
+        - line: "Tier 4 (20%): Negative constraints & out-of-scope refusals"
+          explanation: "Ensures the model gracefully says 'I don't know' rather than fabricating guesses."
+    leader_questions:
+      what_to_ask: "Show me the distribution of our evaluation test set: how many adversarial and out-of-scope questions are included?"
+      good_answer: "We have 30 golden test cases: 40% routine billing/account, 20% technical limits, 20% compliance, and 20% adversarial injection attempts."
+      red_flag: "All 30 questions are happy-path queries written by the developer who built the feature."
+    check_questions:
+      - id: "m10_l3_q1"
+        prompt: "Why must an enterprise AI golden benchmark include 'out-of-scope' and unanswerable questions?"
+        options:
+          - "To trick the model so engineers can laugh at its errors."
+          - "To verify that the model correctly triggers its refusal and escalation guardrails rather than fabricating hallucinated answers when information is missing."
+          - "Because out-of-scope questions cost zero API tokens."
+          - "To fill up empty space on executive dashboard slides."
+        correct_index: 1
+        misconception_name: "Testing Exclusively for Happy Paths"
+        error_type: "benchmark_design"
+        re_teach: "A resilient AI system must know what it does NOT know. Testing unanswerable queries ensures the system gracefully declines rather than fabricating answers."
+
+  - id: "m10_l4"
+    title: "Unit Economics: Small Language Models vs Frontier Models"
+    estimated_minutes: 15
+    concept: "AI Unit Economics: SLMs vs Frontier Foundation Models"
+    definition: "Small Language Models (SLMs, e.g. 8B parameters) offer low-cost, low-latency execution for specialized tasks, while Frontier Foundation Models (e.g. GPT-4o, Claude 3.5) offer superior reasoning at 10x-30x cost."
+    why_it_matters: "Deploying frontier models for routine classification or summarization incinerates capital, destroying the financial ROI of your AI initiative."
+    analogy: "Using a frontier model to classify support tickets is like using a Ferrari to deliver UberEats orders: expensive, overpowered, and inefficient."
+    explanation: >
+      As a data and AI leader, you own the P&L of your analytics investments. 
+      Consider this unit economic calculation:
+      A company processes 1,000,000 customer inquiries per month. 
+      Frontier Model (e.g. $5.00 / 1M input, $15.00 / 1M output): Average cost per query is $0.0065 = $6,500/month ($78,000/year). 
+      Specialized SLM (e.g. $0.15 / 1M input, $0.60 / 1M output): Average cost per query is $0.00024 = $240/month ($2,880/year). 
+      The specialized model delivers 97% of the factual accuracy on routine classification at 3.7% of the cost, 
+      with 300ms latency instead of 2,500ms. 
+      Leaders architect a Router Model: send 85% of routine queries to the low-cost model, 
+      escalating only the 15% complex reasoning queries to the frontier model.
+    worked_example:
+      context: "Tiered routing architecture optimizing cost and latency."
+      code_or_query: |
+        -- AI Router Architecture:
+        -- Query Complexity < 0.7 ➔ Route to Llama-3-8B / gpt-4o-mini (Cost: $0.0002, Latency: 250ms)
+        -- Query Complexity >= 0.7 ➔ Route to Frontier Reasoning Model (Cost: $0.0060, Latency: 2200ms)
+        -- Blended Cost Savings: 78% reduction in monthly API spend.
+      line_by_line:
+        - line: "Query Complexity < 0.7 ➔ Route to Llama-3-8B / gpt-4o-mini"
+          explanation: "Captures 85% of repetitive volume (e.g. password resets, billing dates) at minimal unit cost."
+        - line: "Query Complexity >= 0.7 ➔ Route to Frontier Reasoning Model"
+          explanation: "Reserves expensive multi-step reasoning for ambiguous disputes and high-stakes accounts."
+        - line: "Blended Cost Savings: 78% reduction in monthly API spend"
+          explanation: "Delivers institutional-grade AI capabilities while protecting gross margin unit economics."
+    leader_questions:
+      what_to_ask: "What is our blended cost per query, and why aren't we routing routine structured classification tasks to a smaller specialized model?"
+      good_answer: "We implemented an intent router: 80% of routine lookups hit our fast mini model, saving $45k annually while cutting p95 latency to 380ms."
+      red_flag: "We just route everything to the most expensive frontier model because we haven't benchmarked smaller alternatives."
+    check_questions:
+      - id: "m10_l4_q1"
+        prompt: "What is the primary commercial benefit of deploying an 'AI Router' architecture that cascades queries between small language models and frontier models?"
+        options:
+          - "It eliminates the need to use cloud servers entirely."
+          - "It cuts monthly API inference costs by 70-80% and reduces response latency while preserving frontier reasoning for complex edge cases."
+          - "It prevents users from asking questions after 5:00 PM."
+          - "It translates responses into Excel formulas automatically."
+        correct_index: 1
+        misconception_name: "Assuming One Frontier Model Must Serve All Enterprise Tasks"
+        error_type: "ai_unit_economics"
+        re_teach: "A cascading router directs routine tasks to low-cost, sub-second models while reserving expensive frontier models for complex multi-step reasoning."

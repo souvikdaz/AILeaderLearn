@@ -1,0 +1,75 @@
+module_id: "module_10"
+title: "Module 10 Mastery Check: Evaluating AI Output & Benchmark Design"
+pass_threshold: 80.0
+max_attempts: 3
+
+questions:
+  - id: "m10_mc_1"
+    type: "multiple_choice"
+    prompt: "In LLM evaluation frameworks, what does 'Groundedness' (or Faithfulness) specifically measure?"
+    options:
+      - "Whether the server is physically connected to an electrical ground wire."
+      - "Whether every factual claim made in the generated AI output is strictly supported by and traceable back to the retrieved source documentation."
+      - "How fast the model outputs tokens per second."
+      - "Whether the prompt was written in lowercase letters."
+    correct_index: 1
+    points: 20
+    concept: "Groundedness Definition"
+
+  - id: "m10_mc_2"
+    type: "multiple_choice"
+    prompt: "A data science team reports an overall AI feature accuracy of 96%. However, upon inspecting the benchmark, you notice that 100% of the questions were routine happy-path queries and zero adversarial edge cases were included. What is your leadership assessment?"
+    options:
+      - "Approve production deployment immediately since 96% is well above the industry average."
+      - "Reject the evaluation as uncalibrated: the benchmark lacks edge-case stress tests and adversarial refusal scenarios, creating a false sense of security."
+      - "Ask the engineers to delete the test set."
+      - "Reduce the engineering team's budget by 50%."
+    correct_index: 1
+    points: 20
+    concept: "Benchmark Representativeness & Stress Testing"
+
+  - id: "m10_mc_3"
+    type: "multiple_choice"
+    prompt: "What is the primary risk of using standard BLEU or ROUGE n-gram overlap metrics to evaluate conversational generative AI answers?"
+    options:
+      - "BLEU and ROUGE evaluate surface string word matching rather than semantic truth; an answer can use completely different words and be 100% factually correct, or use matching words with a negated 'NOT' and be 100% wrong."
+      - "They cannot run on Mac or Linux operating systems."
+      - "They cost $50 per execution."
+      - "They only work for French text."
+    correct_index: 0
+    points: 20
+    concept: "Semantic Truth vs Lexical String Matching"
+
+  - id: "m10_mc_code_reading"
+    type: "code_reading"
+    prompt: "Review the evaluation query below. What business conclusion should a data leader draw from the result of this query?"
+    code_snippet: |
+      SELECT 
+          query_type,
+          COUNT(*) as total,
+          SUM(has_hallucination) as hallucinated_count,
+          ROUND(AVG(has_hallucination) * 100.0, 1) as hallucination_pct
+      FROM llm_eval_testset
+      WHERE query_type = 'Security'
+      GROUP BY query_type;
+      -- Output: Security | 5 | 0 | 0.0%
+    options:
+      - "The model is failing all security tests and must be shut down."
+      - "The model demonstrated 0.0% hallucination rate across all 5 audited security queries, indicating robust compliance guardrails in the security domain."
+      - "The query produced a syntax error because Security is a reserved SQL word."
+      - "The security queries were automatically deleted."
+    correct_index: 1
+    points: 20
+    concept: "Evaluating Domain-Specific Risk Metrics"
+
+  - id: "m10_mc_executive"
+    type: "executive_explanation"
+    prompt: "Explain to the Chief Risk Officer (CRO) how your team quantitatively measures and controls generative AI hallucination rates before any prompt or model update touches live customers."
+    evaluation_criteria:
+      - "Explains the 30-item golden test benchmark covering edge cases, compliance, and negative constraints"
+      - "Explains the automated evaluation pipeline measuring Groundedness and Factual Accuracy"
+      - "Describes the CI/CD deployment gate: prompt changes are blocked if hallucination rate exceeds the agreed threshold"
+    sample_answer: >
+      We do not rely on subjective impressions to test our AI. We maintain a permanent 30-item Golden Evaluation Benchmark containing challenging customer scenarios, legal edge cases, and adversarial injection attempts. Every prompt or model update automatically runs through an automated evaluation harness that scores Groundedness (does the model cite facts strictly from our documents?) and Factual Accuracy. If the measured hallucination rate exceeds our 2% threshold, the automated CI/CD pipeline immediately blocks the deployment.
+    points: 20
+    concept: "Executive Risk Communication on AI Governance"

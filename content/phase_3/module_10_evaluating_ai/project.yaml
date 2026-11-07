@@ -1,0 +1,55 @@
+project_id: "m10_project"
+module_id: "module_10"
+title: "Project 10: Enterprise Generative AI Benchmark & Evaluation Dossier"
+phase_id: "phase_3"
+allowed_extensions: [".md", ".docx", ".pdf", ".txt", ".csv"]
+min_words: 350
+max_words: 1500
+
+scenario: >
+  Your company deployed an LLM-powered Customer Support Copilot intended to automate Level-1 ticketing. 
+  However, the Chief Operating Officer received reports of contradictory pricing commitments and hallucinated SLA credits. 
+  You are tasked with conducting an objective audit of the model's outputs against the 30-item Golden Evaluation Benchmark.
+  
+  Deliverable:
+  Submit a full C-Suite Evaluation Dossier:
+  1. Benchmark Performance Audit: Quantitative breakdown of Groundedness, Factual Accuracy, and Hallucination Rates across the 30 evaluation test items, categorized by domain (Billing, Technical, Security, Account).
+  2. Failure Mode Deep-Dive: Detailed root cause analysis of the top 3 critical hallucinations identified in the test set.
+  3. Continuous AI Governance Framework: Proposed automated CI/CD evaluation gate, human-in-the-loop review cadence, and model routing policy (SLMs vs Frontier models).
+
+required_sections:
+  - "Executive Summary & Audit Findings"
+  - "Quantitative Benchmark Results Across Evaluation Domains"
+  - "Root Cause Analysis of Identified Hallucinations"
+  - "The Automated CI/CD AI Evaluation Gate"
+  - "Strategic Recommendations for the Executive Committee"
+
+required_keywords:
+  - "benchmark"
+  - "hallucination"
+  - "groundedness"
+  - "evaluation"
+  - "guardrails"
+
+rubric:
+  criteria:
+    - id: "quantitative_rigor"
+      name: "Quantitative Analysis & Benchmark Metrics"
+      weight: 25
+      pass_threshold: 20
+      description: "Does the dossier accurately compute and analyze groundedness, accuracy, and hallucination rates across test categories?"
+    - id: "root_cause_depth"
+      name: "Root Cause Diagnosis of AI Failures"
+      weight: 25
+      pass_threshold: 20
+      description: "Does the analysis identify why the model hallucinated (e.g. ungrounded extrapolation, missing refusal guardrails, chunk truncation)?"
+    - id: "governance_architecture"
+      name: "Continuous Evaluation & Governance Design"
+      weight: 25
+      pass_threshold: 20
+      description: "Does the brief establish concrete CI/CD testing gates and human calibration protocols?"
+    - id: "executive_readability"
+      name: "C-Suite Presentation, Structure & Tone"
+      weight: 25
+      pass_threshold: 20
+      description: "Is the dossier written with executive clarity, high-signal summary tables, and actionable decision-oriented recommendations?"

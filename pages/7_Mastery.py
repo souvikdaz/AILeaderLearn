@@ -23,15 +23,36 @@ if not learner_id:
 learner = get_learner(learner_id)
 track = load_track_config()
 
-# Module selector (Phase 1 modules)
-p1_mods = track.get("phases", [])[0].get("modules", [])
-mod_options = {m["id"]: f"{m.get('code', 'M')}: {m['title']}" for m in p1_mods}
+# Find all modules with authored mastery.yaml files across all phases
+authored_mastery = {}
+for p_dir in sorted(CONTENT_DIR.iterdir()):
+    if p_dir.is_dir() and p_dir.name.startswith("phase_"):
+        for m_dir in sorted(p_dir.iterdir()):
+            if m_dir.is_dir() and (m_dir / "mastery.yaml").exists():
+                with open(m_dir / "mastery.yaml", "r", encoding="utf-8") as f:
+                    mdata = yaml.safe_load(f)
+                    mid = mdata.get("module_id")
+                    if mid:
+                        authored_mastery[mid] = mdata
+
+all_track_mods = []
+for phase in track.get("phases", []):
+    for m in phase.get("modules", []):
+        if m["id"] in authored_mastery:
+            all_track_mods.append(m)
+
+mod_options = {m["id"]: f"{m.get('code', 'M')}: {m['title']}" for m in all_track_mods}
 selected_module_id = st.selectbox(
     "Select Module for Mastery Check:",
     options=list(mod_options.keys()),
     format_func=lambda x: mod_options[x],
     key="mastery_module_selector"
 )
+
+mastery_data = authored_mastery.get(selected_module_id)
+if not mastery_data:
+    st.info("Mastery questions for this module are currently being loaded.")
+    st.stop()
 
 mod_status = get_module_status(learner_id, selected_module_id)
 attempts_made = mod_status.get("mastery_attempts", 0)
@@ -65,19 +86,7 @@ if attempts_made >= MAX_ATTEMPTS and curr_score < PASS_THRESHOLD:
 if status == "passed" or status == "tested_out":
     st.success(f"🎉 **Module Mastery Verified!** You passed with {curr_score}% on attempt #{attempts_made}.")
 
-# Load mastery YAML
-mastery_data = None
-for sub in (CONTENT_DIR / "phase_1").iterdir():
-    if sub.is_dir() and (sub / "mastery.yaml").exists():
-        with open(sub / "mastery.yaml", "r", encoding="utf-8") as f:
-            data = yaml.safe_load(f)
-        if data.get("module_id") == selected_module_id:
-            mastery_data = data
-            break
-
-if not mastery_data:
-    st.info("Mastery questions for this module are currently being loaded.")
-    st.stop()
+# Mastery data already loaded from authored_mastery above
 
 questions = mastery_data.get("questions", [])
 
