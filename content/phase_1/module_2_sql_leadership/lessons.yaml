@@ -12,13 +12,12 @@ lessons:
     why_it_matters: "Understanding query execution order prevents leaders from approving queries with invalid aliases or non-indexable filters that spike cloud warehouse bills."
     analogy: "A SQL query is like a restaurant order: the menu lists appetizers first, but the kitchen checks pantry inventory (FROM) and filters spoiled items (WHERE) before plating (SELECT)."
     explanation: >
-      While a query is written starting with SELECT, the database engine executes it in a very specific sequence: 
-      FROM (identify the source table), WHERE (filter raw rows), GROUP BY (aggregate into buckets), 
-      HAVING (filter aggregated buckets), SELECT (return specific columns), and ORDER BY (sort output).
-      Knowing this sequence is an executive superpower. For instance, you cannot filter on a column alias created in SELECT 
-      inside your WHERE clause, because the WHERE clause executes before the SELECT clause has even run. 
-      When reviewing an analyst's SQL query for the board, checking whether filters are placed in WHERE (filtering early) 
-      versus HAVING (filtering late) reveals whether the query scans gigabytes of unnecessary data.
+      A query starts with SELECT, but engines execute clauses in a strict order.
+      Execution begins with FROM, then WHERE, GROUP BY, HAVING, SELECT, and finally ORDER BY.
+      Knowing this sequence is an executive superpower.
+      You cannot filter on a SELECT alias inside WHERE because WHERE runs first.
+      Checking whether filters sit in WHERE versus HAVING reveals query efficiency.
+      Filtering early in WHERE prevents scanning gigabytes of unnecessary records.
     worked_example:
       context: "A leader audits an analyst's regional revenue query."
       code_or_query: |

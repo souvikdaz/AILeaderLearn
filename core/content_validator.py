@@ -97,7 +97,7 @@ def validate_all_content() -> Dict[str, Any]:
                 elif runner == "python":
                     from core.lab_runner import run_python_lab
                     test_code = lab_data.get("expected_solution") or lab_data.get("starter_code")
-                    res = run_python_lab(test_code)
+                    res = run_python_lab(test_code, timeout=10)
                     if not res.get("success"):
                         errors.append(f"[{mod_name}] Lab python execution test failed: {res.get('error')}")
 

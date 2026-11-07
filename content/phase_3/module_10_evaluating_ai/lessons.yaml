@@ -12,12 +12,15 @@ lessons:
     why_it_matters: "Human review of thousands of AI responses is too slow and expensive for continuous deployment, while simple string-matching cannot evaluate nuanced semantic meaning."
     analogy: "LLM-as-a-Judge is like having a senior copy editor quickly review drafts against a style guide before final sign-off."
     explanation: >
-      How do you know if your engineering team's prompt change actually improved your AI feature or quietly made it worse? 
-      In traditional software, unit tests check exact numbers. 
-      In generative AI, outputs vary syntactically even when they mean the same thing. 
-      Leaders employ a dual-track evaluation framework:
-      1) LLM-as-a-Judge: An automated evaluation pipeline passes both the candidate response and audited reference answer to a judge model with a rubric scoring Factual Accuracy, Groundedness, and Tone (1 to 5 scale).
-      2) Human-in-the-Loop (HITL): Human domain experts audit a randomized 5% sample and all flagged edge cases to calibrate the automated judge and catch subtle domain errors.
+      How do you know if a prompt change improved your AI feature or made it worse?
+      In traditional software, unit tests check exact numbers.
+      In generative AI, outputs vary syntactically while meaning the same thing.
+      Leaders employ a dual-track evaluation framework.
+      First, use LLM-as-a-Judge.
+      An automated pipeline passes candidate responses and ground-truth answers to a judge model.
+      The judge scores Factual Accuracy, Groundedness, and Tone on a 1-to-5 scale.
+      Second, employ Human-in-the-Loop audits.
+      Human experts review a randomized five percent sample and flagged edge cases to calibrate judges.
     worked_example:
       context: "An automated LLM-as-a-Judge scoring prompt."
       code_or_query: |
@@ -63,13 +66,13 @@ lessons:
     why_it_matters: "A response can be completely relevant to a customer's question while being a total hallucination that promises unauthorized refunds."
     analogy: "Relevance is answering the question asked; Groundedness is citing the actual contract; Hallucination is inventing a creative answer from thin air."
     explanation: >
-      To govern generative AI rigorously, analytics leaders monitor the RAG Triad:
-      1) Context Relevance: Did the retrieval engine fetch documents that actually answer the user's prompt, or irrelevant noise?
-      2) Groundedness (Faithfulness): Are all claims in the generated response supported by the retrieved text? If the context mentions 14 days and the model says 30 days, it is ungrounded.
-      3) Answer Relevance: Does the generated text directly resolve the user's inquiry without extraneous fluff?
-      On executive dashboards, track Hallucination Rate as a core operational risk metric:
-      `Hallucination Rate = (Responses with >= 1 Unverified Claim) / (Total Evaluated Responses)`. 
-      In commercial enterprise deployments, the target hallucination rate must be strictly under 2%.
+      To govern generative AI rigorously, analytics leaders monitor the RAG Triad.
+      First is Context Relevance. Did the retrieval engine fetch documents answering the user's prompt?
+      Second is Groundedness. Are all claims in the generated response supported by retrieved text?
+      Third is Answer Relevance. Does the generated response directly resolve the user's inquiry?
+      On executive dashboards, track Hallucination Rate as a core operational risk metric.
+      Calculate this as responses with unverified claims divided by total evaluated responses.
+      In enterprise deployments, the target hallucination rate must remain strictly below two percent.
     worked_example:
       context: "Mathematical formulation of AI feature quality metrics in SQL/DuckDB."
       code_or_query: |

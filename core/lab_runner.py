@@ -12,7 +12,14 @@ import pandas as pd
 from config.settings import PROJECT_ROOT
 from core.db import execute_write, get_db_connection
 
-LAB_TIMEOUT_SECONDS = 5
+LAB_TIMEOUT_SECONDS = 10
+
+def get_python_executable() -> str:
+    """Returns the dedicated virtual environment Python executable if available."""
+    venv_py = PROJECT_ROOT / "venv" / "bin" / "python"
+    if venv_py.exists():
+        return str(venv_py)
+    return sys.executable
 
 def run_sql_lab(
     query: str,
@@ -92,15 +99,14 @@ def run_python_lab(
         with open(tmp_script, "w", encoding="utf-8") as f:
             f.write(code)
 
-        # Environment without internet access proxies
+        # Environment with project root in path
         env = os.environ.copy()
         env["PYTHONPATH"] = str(PROJECT_ROOT)
-        env["HTTP_PROXY"] = "http://127.0.0.1:0"
-        env["HTTPS_PROXY"] = "http://127.0.0.1:0"
+        python_bin = get_python_executable()
 
         try:
             result = subprocess.run(
-                [sys.executable, str(tmp_script)],
+                [python_bin, str(tmp_script)],
                 cwd=str(PROJECT_ROOT),
                 capture_output=True,
                 text=True,

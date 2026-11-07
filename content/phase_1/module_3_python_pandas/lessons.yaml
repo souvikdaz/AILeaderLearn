@@ -18,8 +18,8 @@ lessons:
       If you see numbers jumping around—such as `In [24]` at the top and `In [3]` at the bottom—it means the analyst executed 
       cells out of order. They may have defined a variable at the bottom, scrolled to the top, and re-executed cell 1. 
       If you run this notebook tomorrow from scratch, it will crash with a `NameError`. 
-      As a data leader, your first rule of notebook hygiene is non-negotiable: never accept an analysis until the author clicks 
-      'Kernel -> Restart & Run All' and all cells execute cleanly from top to bottom.
+      Your notebook hygiene rule is non-negotiable.
+      Never accept work until the author clicks 'Kernel -> Restart & Run All' with zero errors.
     worked_example:
       context: "Inspecting notebook execution flags and state resets."
       code_or_query: |
@@ -122,13 +122,13 @@ lessons:
     why_it_matters: "A script with a syntax error halts immediately and causes no harm; a script with a silent data bug publishes corrupted metrics to executive decks."
     analogy: "A syntax error is a check engine light that stops the car; a silent failure is a speedometer showing 60 mph while you are actually driving 90 mph."
     explanation: >
-      When a Python script crashes with an explicit error (like `KeyError: 'revenue'`), asking an AI assistant to fix it 
-      is fast and effective. But the real danger for analytics leaders is the silent bug that doesn't crash. 
-      Three classic pandas traps fool both junior analysts and AI coding assistants:
-      1) String Concatenation Trap: If numbers were loaded as text objects, `sum()` concatenates the digits (`'100'` + `'200'` = `'100200'`) instead of adding them (`300`).
-      2) Silent Dropna: `df.dropna()` deleting 30% of customer records because an irrelevant optional column had empty values.
-      3) Chained Assignment Warning: Modifying a slice of a DataFrame (`df[df['spend']>100]['tier'] = 'VIP'`) which fails to update the underlying data.
-      Always inspect DataFrame `.info()`, `.shape`, and check row counts before and after filtering.
+      When a Python script crashes with an explicit error, asking AI to fix it is fast.
+      The real danger is the silent bug that does not crash.
+      Three classic pandas traps fool analysts and AI tools alike.
+      First is the String Concatenation Trap. If numbers load as text, `sum()` concatenates strings rather than adding values.
+      Second is the Silent Dropna Trap. Calling `df.dropna()` can delete thirty percent of records when an optional field is empty.
+      Third is Chained Assignment. Modifying a slice fails to update the underlying DataFrame.
+      Always inspect DataFrame `.info()`, `.shape`, and record counts before and after filtering.
     worked_example:
       context: "Detecting and correcting a string type concatenation bug with AI."
       code_or_query: |

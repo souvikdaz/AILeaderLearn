@@ -112,13 +112,13 @@ lessons:
     why_it_matters: "Dashboards cluttered with vanity metrics create a false sense of security while core business economics deteriorate unnoticed."
     analogy: "A vanity metric is the applause volume after a presentation; an actionable metric is the number of signed contracts closed."
     explanation: >
-      A data leader must ruthlessly purge vanity metrics from executive dashboards. 
-      Classic vanity metrics include: Cumulative Registered Users (it never goes down, even if 95% of accounts are dormant), 
-      Total Page Views (inflated by internal testing and web crawlers), and Total Raw Leads. 
-      To test if a dashboard metric is actionable, apply the 'So What?' Test: 
-      If this number drops by 15% tomorrow, what specific operational lever do we pull? 
-      If nobody knows what action to take when the number changes, it does not belong on an executive dashboard. 
-      Replace 'Total Registered Users' with '30-Day Active Users performing core value actions'. 
+      A data leader must ruthlessly purge vanity metrics from executive dashboards.
+      Common vanity metrics include cumulative signups, total page views, and raw leads.
+      Cumulative signups never decrease, even if ninety-five percent of accounts are dormant.
+      To test if a metric is actionable, apply the 'So What?' Test.
+      If this number drops by fifteen percent tomorrow, what operational lever do we pull?
+      If nobody knows what action to take when the number changes, remove it.
+      Replace 'Total Registered Users' with '30-Day Active Users performing core value actions'.
       Replace 'Total Page Views' with 'Qualified Funnel Conversion Rate'.
     worked_example:
       context: "Auditing an executive dashboard: Vanity vs Actionable replacements."
@@ -166,14 +166,13 @@ lessons:
     why_it_matters: "Misalignment between an executive's abstract goal and an analyst's literal code implementation results in millions spent optimizing the wrong business behavior."
     analogy: "An architect translating a homeowner's desire for 'a cozy bright living room' into structural engineering blueprints with precise beam dimensions and window angles."
     explanation: >
-      Executives speak in strategic objectives: 'We need to boost customer stickiness,' or 'We must drive operational efficiency.' 
-      Junior analysts often translate this literally: they track how many times a user clicks a button, or count total tickets resolved. 
-      The data leader sits squarely in the middle, translating strategic intent into unambiguous quantitative criteria. 
-      When the CEO says 'customer stickiness,' the leader clarifies: 
-      Do we mean breadth of usage (how many departments use the software), depth of usage (hours spent per day), 
-      or economic switching cost (integration with company APIs)? 
-      By decomposing the objective into quantifiable dimensions, the leader ensures the engineering team builds metrics 
-      that incentivize the exact commercial behavior the CEO envisioned.
+      Executives speak in strategic objectives like boosting stickiness or driving efficiency.
+      Junior analysts often translate this literally by counting button clicks or tickets closed.
+      The data leader translates strategic intent into unambiguous quantitative criteria.
+      When the CEO mentions stickiness, the leader clarifies the exact dimension.
+      Does the CEO mean breadth of usage across departments?
+      Or do they mean daily hours spent, or API switching costs?
+      Decomposing the objective ensures metrics incentivize the intended commercial behavior.
     worked_example:
       context: "Translating 'Customer Stickiness' into three distinct quantitative metrics."
       code_or_query: |

@@ -14,8 +14,8 @@ lessons:
     explanation: >
       Every time a customer places an order or updates their address, an operational database (OLTP) 
       writes a single row with millisecond speed. These systems prioritize high concurrency and data consistency.
-      However, when an analyst runs a complex query calculating 'Year-to-Date Customer Lifetime Value across 5 million users', 
-      running that heavy query directly on the production OLTP database locks tables and risks crashing customer transactions.
+      Analysts often calculate lifetime value across millions of users.
+      Running that heavy query directly on production OLTP locks tables and risks crashing customer transactions.
       Modern architecture extracts transactional data into an analytical warehouse (OLAP), such as Snowflake, BigQuery, or Databricks. 
       OLAP stores data by column rather than row. If you calculate average spend, the warehouse scans only the 'spend' column, 
       speeding up queries by 100x and isolating business analytics from production systems.
