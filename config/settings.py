@@ -36,7 +36,10 @@ SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
 SMTP_FROM_EMAIL = os.getenv("SMTP_FROM_EMAIL", "noreply@aileaderlearn.com")
 
 # Google Drive / Google Sheets Integration
-GOOGLE_SHEET_WEBHOOK_URL = os.getenv("GOOGLE_SHEET_WEBHOOK_URL", "")
+GOOGLE_SHEET_WEBHOOK_URL = os.getenv(
+    "GOOGLE_SHEET_WEBHOOK_URL",
+    "https://script.google.com/macros/s/AKfycbzdpBtPmWa5VJ_OR4HuqczHThhH8Q0-h39w0GQSYtTfQbi-vIQEnBZ_9lSgd_aXdpEJWw/exec"
+)
 
 def load_track_config(track_id: str = "data_ai_leadership") -> dict:
     track_path = TRACKS_DIR / f"{track_id}.yaml"

@@ -4,9 +4,13 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 import requests
-from config.settings import PROJECT_ROOT
+from config.settings import PROJECT_ROOT, GOOGLE_SHEET_WEBHOOK_URL
 
 GOOGLE_DRIVE_CSV_FILE = PROJECT_ROOT / "db" / "google_drive_emails.csv"
+
+def get_webhook_url() -> str:
+    """Returns configured Google Sheet Webhook URL with fallback to settings."""
+    return (os.getenv("GOOGLE_SHEET_WEBHOOK_URL") or GOOGLE_SHEET_WEBHOOK_URL or "").strip()
 
 def init_google_drive_csv() -> None:
     """Initializes the local CSV sync ledger if it does not exist."""
@@ -20,12 +24,12 @@ def sync_email_to_google_sheet(learner_id: str, name: str, email: str, role: str
     """
     Appends learner email details to Google Drive.
     1. Always logs to local ledger db/google_drive_emails.csv.
-    2. If GOOGLE_SHEET_WEBHOOK_URL is configured in .env, transmits payload via HTTP POST.
+    2. If Google Sheet Webhook URL is configured, transmits payload via HTTP POST.
     3. Returns success boolean and descriptive message.
     """
     init_google_drive_csv()
     now_str = datetime.now().isoformat()
-    webhook_url = os.getenv("GOOGLE_SHEET_WEBHOOK_URL", "").strip()
+    webhook_url = get_webhook_url()
     
     sync_status = "PENDING_CONFIG"
     message = "Saved to local ledger. Awaiting Google Drive Sheet Webhook/API configuration."
@@ -39,7 +43,7 @@ def sync_email_to_google_sheet(learner_id: str, name: str, email: str, role: str
                 "email": email,
                 "role": role
             }
-            resp = requests.post(webhook_url, json=payload, timeout=8)
+            resp = requests.post(webhook_url, json=payload, timeout=12)
             if resp.status_code in (200, 201):
                 sync_status = "SYNCED_GOOGLE_DRIVE"
                 message = f"Successfully synced {email} to Google Drive Sheet via Webhook."
@@ -70,7 +74,7 @@ def get_google_drive_sync_records() -> List[Dict[str, str]]:
 
 def get_google_drive_sync_status() -> Dict[str, Any]:
     """Returns connectivity and ledger statistics for Google Drive integration."""
-    webhook_url = os.getenv("GOOGLE_SHEET_WEBHOOK_URL", "").strip()
+    webhook_url = get_webhook_url()
     records = get_google_drive_sync_records()
     synced_count = sum(1 for r in records if r.get("sync_status") == "SYNCED_GOOGLE_DRIVE")
     pending_count = len(records) - synced_count
@@ -86,7 +90,7 @@ def get_google_drive_sync_status() -> Dict[str, Any]:
 
 def retry_pending_syncs() -> int:
     """Attempts to sync any previously pending emails if a webhook URL has been configured."""
-    webhook_url = os.getenv("GOOGLE_SHEET_WEBHOOK_URL", "").strip()
+    webhook_url = get_webhook_url()
     if not webhook_url:
         return 0
     records = get_google_drive_sync_records()
