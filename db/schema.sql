@@ -13,6 +13,8 @@ CREATE TABLE IF NOT EXISTS learners (
     start_date TEXT NOT NULL,
     created_at TEXT NOT NULL,
     last_active_at TEXT,
+    email TEXT,
+    password_hash TEXT,
     status TEXT DEFAULT 'active'
 );
 

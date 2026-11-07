@@ -24,11 +24,15 @@ def init_db(db_path: Optional[Path] = None) -> None:
         schema_sql = f.read()
     conn.executescript(schema_sql)
     
-    # Ensure last_active_at column exists in learners
+    # Ensure necessary columns exist in learners
     cursor = conn.cursor()
     cols = [c[1] for c in cursor.execute("PRAGMA table_info(learners)").fetchall()]
     if "last_active_at" not in cols:
         cursor.execute("ALTER TABLE learners ADD COLUMN last_active_at TEXT;")
+    if "email" not in cols:
+        cursor.execute("ALTER TABLE learners ADD COLUMN email TEXT;")
+    if "password_hash" not in cols:
+        cursor.execute("ALTER TABLE learners ADD COLUMN password_hash TEXT;")
         
     conn.commit()
     conn.close()
@@ -76,6 +80,13 @@ def get_learner(learner_id: str, db_path: Optional[Path] = None) -> Optional[Dic
     rows = execute_query("SELECT * FROM learners WHERE id = ?", (learner_id,), db_path=db_path)
     return dict(rows[0]) if rows else None
 
+def get_learner_by_email(email: str, db_path: Optional[Path] = None) -> Optional[Dict[str, Any]]:
+    """Retrieves a learner by email address (case-insensitive)."""
+    if not email:
+        return None
+    rows = execute_query("SELECT * FROM learners WHERE LOWER(email) = LOWER(?)", (email.strip(),), db_path=db_path)
+    return dict(rows[0]) if rows else None
+
 def create_learner(
     learner_id: str,
     name: str,
@@ -87,6 +98,8 @@ def create_learner(
     tools_known: List[str],
     hours_per_week: int,
     start_date: str,
+    email: str = "",
+    password_hash: str = "",
     db_path: Optional[Path] = None
 ) -> Dict[str, Any]:
     from datetime import datetime
@@ -94,12 +107,14 @@ def create_learner(
     tools_json = json.dumps(tools_known)
     sql = """
     INSERT INTO learners (id, name, track_id, current_role, years_of_experience, 
-                          target_level, industry, tools_known, hours_per_week, start_date, created_at, last_active_at, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')
+                          target_level, industry, tools_known, hours_per_week, start_date, 
+                          created_at, last_active_at, email, password_hash, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')
     """
     execute_write(sql, (
         learner_id, name, track_id, current_role, years_of_experience,
-        target_level, industry, tools_json, hours_per_week, start_date, created_at, created_at
+        target_level, industry, tools_json, hours_per_week, start_date, 
+        created_at, created_at, email.strip(), password_hash.strip()
     ), db_path=db_path)
     return get_learner(learner_id, db_path=db_path) # type: ignore
 

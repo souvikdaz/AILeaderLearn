@@ -12,6 +12,9 @@ from core.db import (
     get_all_learners, get_all_learners_with_activity, get_learner,
     delete_learner, execute_query
 )
+from core.google_drive_sync import (
+    get_google_drive_sync_status, get_google_drive_sync_records, retry_pending_syncs
+)
 from core.content_validator import validate_all_content
 from core.mastery_gate import reset_module
 from core.progress_tracker import generate_misconception_heatmap
@@ -67,6 +70,7 @@ with tab_learners:
             table_data.append({
                 "Learner ID": l["id"],
                 "Name": l["name"],
+                "Email": l.get("email", "Not registered"),
                 "Current Role": l.get("current_role", "-"),
                 "Target Leadership Level": l.get("target_level", "-"),
                 "Industry": l.get("industry", "-"),
@@ -144,6 +148,74 @@ with tab_learners:
                     st.success(f"Module '{res_module_id}' has been reset for {res_learner_id}!")
                 else:
                     st.error("Reset failed: reset conditions not met.")
+
+        st.markdown("---")
+        # 3. Google Drive / Sheets Sync Ledger & Status
+        st.markdown("#### ☁️ Google Drive & Sheets Sync Status")
+        st.caption("Live monitoring of email registrations synced to your Google Drive Sheet.")
+        
+        drive_status = get_google_drive_sync_status()
+        col_gd1, col_gd2, col_gd3, col_gd4 = st.columns(4)
+        with col_gd1:
+            st.metric("Total Emails Captured", drive_status["total_emails_captured"])
+        with col_gd2:
+            st.metric("Synced to Google Drive", drive_status["synced_to_drive"])
+        with col_gd3:
+            st.metric("Pending Drive Sync", drive_status["pending_sync"])
+        with col_gd4:
+            is_conf = drive_status["webhook_configured"]
+            st.metric("Drive Webhook", "Active ✅" if is_conf else "Pending Setup ⚠️")
+
+        col_sync_act1, col_sync_act2 = st.columns([3, 2])
+        with col_sync_act1:
+            if st.button("🔄 Retry / Sync Pending Emails to Google Drive", key="btn_retry_drive_sync"):
+                count = retry_pending_syncs()
+                if count > 0:
+                    st.success(f"Successfully synced {count} pending emails to your Google Drive Sheet!")
+                elif not drive_status["webhook_configured"]:
+                    st.warning("Google Sheet Webhook URL is not yet configured in `.env` (GOOGLE_SHEET_WEBHOOK_URL).")
+                else:
+                    st.info("All captured emails are already up-to-date in Google Drive.")
+        with col_sync_act2:
+            sync_records = get_google_drive_sync_records()
+            if sync_records:
+                import io
+                csv_buffer = io.StringIO()
+                import csv as py_csv
+                writer = py_csv.DictWriter(csv_buffer, fieldnames=["timestamp", "learner_id", "name", "email", "role", "sync_status", "error_message"])
+                writer.writeheader()
+                writer.writerows(sync_records)
+                st.download_button(
+                    "📥 Download Email Ledger CSV",
+                    data=csv_buffer.getvalue(),
+                    file_name="google_drive_emails_ledger.csv",
+                    mime="text/csv",
+                    use_container_width=True
+                )
+
+        with st.expander("📖 How to Connect Your Google Drive Sheet (Setup Instructions)", expanded=False):
+            st.markdown("""
+            **How to sync learner emails directly into your Google Drive Sheet:**
+            1. Open [Google Drive](https://drive.google.com) and create a new **Google Sheet** (e.g. named `AI Leader Learn - Registrations`).
+            2. In the Google Sheet, add headers in Row 1: `Timestamp | Learner ID | Full Name | Email Address | Target Role`.
+            3. Click **Extensions** ➔ **Apps Script**, and paste this short snippet:
+            ```javascript
+            function doPost(e) {
+              var data = JSON.parse(e.postData.contents);
+              var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+              sheet.appendRow([data.timestamp, data.learner_id, data.name, data.email, data.role]);
+              return ContentService.createTextOutput(JSON.stringify({"status": "success"})).setMimeType(ContentService.MimeType.JSON);
+            }
+            ```
+            4. Click **Deploy** ➔ **New deployment** ➔ Select type: **Web app**.
+               - Set **Execute as:** `Me`.
+               - Set **Who has access:** `Anyone`.
+            5. Copy the generated **Web App URL**, and paste it into `.env` as:
+            ```bash
+            GOOGLE_SHEET_WEBHOOK_URL="https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec"
+            ```
+            Every new learner registration will instantly append to your Google Sheet on Google Drive!
+            """)
 
 with tab_val:
     st.markdown("### 🧪 Automated Curriculum Content Validator")

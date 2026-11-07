@@ -10,6 +10,7 @@ sys.path.insert(0, str(ROOT))
 from core.db import (
     init_db, execute_write, execute_query, create_learner, get_all_learners
 )
+from core.auth import encrypt_password
 from core.placement import record_diagnostic_result
 from core.mastery_gate import record_mastery_attempt, unlock_next_module
 from core.lab_runner import record_lab_attempt
@@ -50,6 +51,8 @@ def seed_database(db_path: Path = None):
         tools_known=["Excel (Advanced)", "VBA / Macros", "Power BI", "Basic SQL"],
         hours_per_week=10,
         start_date=p1_start,
+        email="priya.sharma@omniretail.com",
+        password_hash=encrypt_password("leader_2025"),
         db_path=db_path
     )
     
@@ -179,6 +182,8 @@ Transitioning to automated ELT recovers 80 monthly analyst hours ($72,000 annual
         tools_known=["Excel", "Tableau", "Python", "SQL (Intermediate)"],
         hours_per_week=12,
         start_date=p2_start,
+        email="marcus.vance@fintechinsights.io",
+        password_hash=encrypt_password("leader_2025"),
         db_path=db_path
     )
     

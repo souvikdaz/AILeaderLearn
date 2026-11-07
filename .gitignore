@@ -34,6 +34,8 @@ submissions/*
 db/*.db
 db/*.db-shm
 db/*.db-wal
+db/*.json
+db/*.csv
 !db/*.sql
 
 # Streamlit runtime
