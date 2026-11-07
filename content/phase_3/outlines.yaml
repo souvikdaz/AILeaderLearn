@@ -1,0 +1,70 @@
+phase_id: "phase_3"
+phase_name: "Phase 3: AI Leadership in Practice"
+day_range: [51, 75]
+duration_days: 25
+objective: "Lead generative AI and machine learning initiatives, establish evaluation benchmarks, govern AI risk, and build financial cases."
+
+modules:
+  - id: "module_9"
+    code: "M9"
+    title: "LLM Fundamentals, Prompting & RAG Architecture"
+    day_range: [51, 56]
+    skills: ["Generative AI and LLMs: prompting, retrieval-augmented workflows, evaluation of outputs, cost and risk"]
+    objectives:
+      - "Understand tokenomics, context windows, temperature, and latent vector representations."
+      - "Master advanced system prompting (few-shot, chain-of-thought, structured JSON output)."
+      - "Architect end-to-end Retrieval-Augmented Generation (RAG) pipelines with vector embeddings and reranking."
+    lab:
+      title: "Lab 9: RAG Pipeline Chunking & Retrieval Evaluation Simulation"
+      brief: "Test semantic chunking strategies and compare top-k retrieval accuracy against enterprise document queries."
+    project_brief:
+      title: "No-Code/Low-Code AI Workflow Prototype & Risk Assessment"
+      deliverable: "An end-to-end prototype of an internal knowledge or ticket summarization assistant with full risk analysis."
+
+  - id: "module_10"
+    code: "M10"
+    title: "Evaluating AI Output & Benchmark Design"
+    day_range: [57, 62]
+    skills: ["Generative AI and LLMs: prompting, retrieval-augmented workflows, evaluation of outputs, cost and risk"]
+    objectives:
+      - "Build automated LLM-as-a-Judge and human-in-the-loop evaluation frameworks."
+      - "Quantify hallucination rates, groundedness, relevance, and semantic similarity."
+      - "Manage token unit economics and latency optimization at scale."
+    lab:
+      title: "Lab 10: 30-Item LLM Benchmark Scoring & Hallucination Audit"
+      brief: "Run an automated test harness scoring LLM responses across factual correctness, tone, and citation accuracy."
+    project_brief:
+      title: "Phase 3 Capstone Part 1: Enterprise LLM Benchmark Evaluation Dossier"
+      deliverable: "Comprehensive evaluation dossier scoring an enterprise AI feature against a 30-item test set with precision/recall metrics."
+
+  - id: "module_11"
+    code: "M11"
+    title: "ML Project Lifecycle & Experimentation"
+    day_range: [63, 68]
+    skills: ["ML project lifecycle", "Experimentation and A/B test interpretation"]
+    objectives:
+      - "Frame business problems into machine learning tasks (classification, regression, clustering)."
+      - "Evaluate models using Precision, Recall, F1, ROC-AUC, and financial cost-matrix trade-offs."
+      - "Design and interpret statistically rigorous A/B tests (sample size, p-values, minimum detectable effect)."
+    lab:
+      title: "Lab 11: A/B Test Significance Calculator & Churn Model Cost-Matrix Simulator"
+      brief: "Simulate false-positive vs false-negative financial trade-offs in customer churn intervention campaigns."
+    project_brief:
+      title: "Machine Learning Business Case & Experimentation Charter"
+      deliverable: "A business framing charter detailing data readiness, target metrics, baseline comparison, and A/B test rollout plan."
+
+  - id: "module_12"
+    code: "M12"
+    title: "AI Risk, ROI, Budgeting & Hiring AI Teams"
+    day_range: [69, 75]
+    skills: ["AI risk, responsible use, and compliance basics", "Business cases, ROI, and budgeting for AI and analytics", "Hiring and leading AI, ML, and analytics teams"]
+    objectives:
+      - "Manage generative AI security risks (prompt injection, data poisoning, PII leakage, copyright)."
+      - "Construct multi-year AI capital budgets, compute cost models (GPU/API), and tangible ROI pro formas."
+      - "Design role profiles, technical interview rubrics, and skill matrices for data and AI teams."
+    lab:
+      title: "Lab 12: AI Initiative Financial Model & Token Budget Calculator"
+      brief: "Model 3-year cloud compute, API token, and engineering headcount expenses against projected revenue uplift."
+    project_brief:
+      title: "Phase 3 Capstone: Comprehensive AI Business Case, Budget & Hiring Plan"
+      deliverable: "A full executive investment proposal with financial ROI model, 3-year P&L budget, and staffing blueprint."

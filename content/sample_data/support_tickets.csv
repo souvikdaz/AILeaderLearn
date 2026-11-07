@@ -1,0 +1,11 @@
+ticket_id,customer_id,created_at,category,resolution_hours,csat_score,ai_classified
+TCK-501,C101,2024-01-10,API Latency,3.5,4,Yes
+TCK-502,C103,2024-01-20,Model Accuracy Discrepancy,18.0,2,No
+TCK-503,C104,2024-02-05,Data Pipeline Timeout,4.2,5,Yes
+TCK-504,C105,2024-02-12,Billing & Invoicing,1.1,5,Yes
+TCK-505,C107,2024-03-18,LLM Token Quota Exhaustion,2.0,4,Yes
+TCK-506,C109,2024-04-08,Integration Webhook Failure,24.5,1,No
+TCK-507,C110,2024-04-15,Semantic Layer Query Slowdown,6.0,4,Yes
+TCK-508,C102,2024-05-04,Dashboard Metric Mismatch,8.5,3,No
+TCK-509,C106,2024-05-22,Data Drift Alert Triggered,12.0,4,Yes
+TCK-510,C107,2024-06-02,Prompt Injection Security Query,4.0,5,Yes

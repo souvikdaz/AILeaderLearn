@@ -1,0 +1,58 @@
+project_id: "m2_project"
+module_id: "module_2"
+title: "Project 2: SQL Query Audit & Technical Leadership Memo"
+phase_id: "phase_1"
+allowed_extensions: [".md", ".docx", ".pdf", ".txt", ".sql"]
+min_words: 300
+max_words: 1200
+
+scenario: >
+  Your Commercial Finance analyst wrote a SQL query to present Customer Lifetime Value (LTV) and Support Burden 
+  to the Chief Commercial Officer. However, the query joins orders and support tickets simultaneously, 
+  causing an 8x metric explosion for customers with multiple tickets. 
+  Furthermore, the query ignores currency exchange rates and refunds.
+  
+  Deliverable:
+  Submit a two-part Technical Leadership Memo:
+  1. The corrected, production-ready SQL script that properly calculates total net spend, order count, and support tickets per customer without fan-out.
+  2. An executive audit memo (or Markdown brief) explaining:
+     - The exact mathematical error in the analyst's original query.
+     - How you audited and verified the query using AI tools safely.
+     - A standard verification checklist your team will mandate for all future executive SQL reports.
+
+required_sections:
+  - "Executive Summary & Incident Overview"
+  - "Technical Audit: Query Flaws & Join Fan-Out Analysis"
+  - "Corrected SQL Architecture"
+  - "Team Query Verification Protocol"
+  - "Commercial Recommendations for the CCO"
+
+required_keywords:
+  - "fan-out"
+  - "Cartesian"
+  - "COUNT(DISTINCT"
+  - "LEFT JOIN"
+  - "verification"
+
+rubric:
+  criteria:
+    - id: "decision_clarity"
+      name: "Clarity of the Decision & Executive Communication"
+      weight: 25
+      pass_threshold: 20
+      description: "Does the memo clearly articulate what went wrong and what the true numbers are without alarming leadership?"
+    - id: "technical_accuracy"
+      name: "SQL Correctness & Relational Architecture"
+      weight: 25
+      pass_threshold: 20
+      description: "Is the corrected SQL valid, properly deduplicated, handling nulls with COALESCE, and free from Cartesian duplication?"
+    - id: "verification_rigor"
+      name: "Verification Standards & AI Quality Controls"
+      weight: 25
+      pass_threshold: 20
+      description: "Does the brief establish concrete audit checks (e.g. pre-join vs post-join row counts, distinct key checks)?"
+    - id: "executive_readability"
+      name: "Structure, Format & Actionability"
+      weight: 25
+      pass_threshold: 20
+      description: "Is the brief organized logically with clear headings, bullet points, and code formatting?"

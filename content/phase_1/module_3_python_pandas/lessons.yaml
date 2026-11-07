@@ -1,0 +1,215 @@
+module_id: "module_3"
+title: "Python Notebooks & pandas for Analytics Leaders"
+phase_id: "phase_1"
+description: "Navigate Jupyter notebooks, inspect pandas data structures, diagnose errors, and verify AI-generated data science scripts with confidence."
+
+lessons:
+  - id: "m3_l1"
+    title: "Anatomy of a Jupyter Notebook: Cells, State & Execution Order"
+    estimated_minutes: 14
+    concept: "In-Memory Kernel State and Out-of-Order Execution"
+    definition: "A Jupyter notebook executes code in interactive cells that share an in-memory Python kernel state, meaning the sequence in which cells were run determines the variables in memory, not the top-to-bottom visual order on your screen."
+    why_it_matters: "An analyst can delete or re-run a cell in the middle of a notebook, producing a chart that looks brilliant but cannot be reproduced when new monthly data arrives."
+    analogy: "A Jupyter notebook is like a whiteboard where equations can be solved, erased, and rewritten in any corner; if someone copies the final board without knowing the step order, they get the wrong answer."
+    explanation: >
+      Jupyter Notebooks are the universal standard for exploratory data analysis, machine learning prototyping, and AI experimentation. 
+      Each rectangular cell contains Python code or markdown notes. 
+      Next to each cell is an execution counter: `In [1]`, `In [2]`. 
+      If you see numbers jumping around—such as `In [24]` at the top and `In [3]` at the bottom—it means the analyst executed 
+      cells out of order. They may have defined a variable at the bottom, scrolled to the top, and re-executed cell 1. 
+      If you run this notebook tomorrow from scratch, it will crash with a `NameError`. 
+      As a data leader, your first rule of notebook hygiene is non-negotiable: never accept an analysis until the author clicks 
+      'Kernel -> Restart & Run All' and all cells execute cleanly from top to bottom.
+    worked_example:
+      context: "Inspecting notebook execution flags and state resets."
+      code_or_query: |
+        # In [1]: Standard imports and dataset load
+        import pandas as pd
+        df = pd.read_csv('customers.csv')
+
+        # In [2]: Clean column types and verify row count
+        print(f"Loaded {len(df)} customer rows.")
+        df['signup_date'] = pd.to_datetime(df['signup_date'])
+      line_by_line:
+        - line: "import pandas as pd"
+          explanation: "Imports the industry-standard data manipulation library under the standard alias pd."
+        - line: "df = pd.read_csv('customers.csv')"
+          explanation: "Loads tabular comma-separated data into a pandas DataFrame (in-memory two-dimensional table)."
+        - line: "print(f'Loaded {len(df)} customer rows.')"
+          explanation: "Prints the baseline record count to verify data completeness immediately upon load."
+        - line: "df['signup_date'] = pd.to_datetime(df['signup_date'])"
+          explanation: "Converts text strings into true datetime objects for chronological time-series analysis."
+    leader_questions:
+      what_to_ask: "Has this notebook been validated with a fresh 'Restart Kernel and Run All Cells' test?"
+      good_answer: "Yes, all cells are numbered sequentially from 1 to 18 with zero errors on a clean restart."
+      red_flag: "Most cells work, but don't run cell 4 because it overrides a variable we need in cell 9."
+    check_questions:
+      - id: "m3_l1_q1"
+        prompt: "Why must an analytics leader require a 'Restart & Run All' check on every notebook before accepting its findings?"
+        options:
+          - "Because running cells out of order consumes more electricity."
+          - "Because out-of-order execution hides dependencies and unrepeatable in-memory mutations, guaranteeing the script will fail on new data."
+          - "Because Jupyter notebooks expire after 30 days unless restarted."
+          - "Because Python requires all files to end in .py to be valid."
+        correct_index: 1
+        misconception_name: "Visual Order Assumption"
+        error_type: "notebook_mental_model"
+        re_teach: "The visual order of cells on screen does not reflect what is in memory. Only sequential execution from a fresh kernel guarantees reproducibility."
+
+  - id: "m3_l2"
+    title: "Reading pandas: DataFrames, Filtering & Grouping"
+    estimated_minutes: 15
+    concept: "The pandas DataFrame as a Programmatic Pivot Table"
+    definition: "A pandas DataFrame is a two-dimensional labeled data structure with columns of potentially different types, acting as a programmable Excel spreadsheet with millions of rows."
+    why_it_matters: "Leaders who can read pandas syntax can spot flawed filters, silent row drops, and metric calculation mistakes in under 60 seconds."
+    analogy: "A pandas DataFrame is an Excel worksheet on steroids; `.groupby()` is the Pivot Table field builder, and boolean indexing is the AutoFilter dropdown."
+    explanation: >
+      Every Excel analyst already knows pandas conceptually. 
+      When you filter an Excel column for 'Enterprise' accounts, pandas does `df[df['plan'] == 'Enterprise']`. 
+      When you drag 'Region' to Rows and 'Revenue' to Values in an Excel Pivot Table, 
+      pandas does `df.groupby('region')['revenue'].sum().reset_index()`. 
+      The primary difference is that pandas processes operations in seconds without freezing, 
+      and every calculation is logged as explicit, reproducible code rather than hidden cell clicks. 
+      When reviewing code, look closely at `.groupby()`: check if `.agg()` specifies the right mathematical 
+      function (`'mean'`, `'sum'`, or `'nunique'`).
+    worked_example:
+      context: "Calculating customer churn and revenue per industry using pandas."
+      code_or_query: |
+        import pandas as pd
+        # Load customer data
+        df = pd.read_csv('customers.csv')
+
+        # Create industry summary table (Excel Pivot Table equivalent)
+        summary = df.groupby('industry').agg(
+            total_accounts=('customer_id', 'count'),
+            active_accounts=('is_active', 'sum'),
+            total_monthly_spend=('monthly_spend', 'sum')
+        ).reset_index()
+        summary['active_rate'] = summary['active_accounts'] / summary['total_accounts']
+      line_by_line:
+        - line: "df.groupby('industry').agg("
+          explanation: "Groups rows by the 'industry' column (Rows area of an Excel Pivot Table)."
+        - line: "total_accounts=('customer_id', 'count'),"
+          explanation: "Counts total records per industry to establish the cohort base."
+        - line: "active_accounts=('is_active', 'sum'),"
+          explanation: "Sums the binary 1/0 active flag, yielding the count of active accounts."
+        - line: "total_monthly_spend=('monthly_spend', 'sum')"
+          explanation: "Calculates the total monthly recurring revenue generated by that industry."
+        - line: "summary['active_rate'] = summary['active_accounts'] / summary['total_accounts']"
+          explanation: "Adds a calculated ratio column representing customer retention rate."
+    leader_questions:
+      what_to_ask: "What aggregation function did you use in the groupby: did you take the mean of percentages or recalculate the ratio on the sums?"
+      good_answer: "We summed the numerators and denominators first before dividing, avoiding the classic 'average of averages' mathematical distortion."
+      red_flag: "We just ran df.groupby('industry').mean() across all columns including IDs and phone numbers."
+    check_questions:
+      - id: "m3_l2_q1"
+        prompt: "In pandas, what is the programmatic equivalent of dragging a dimension to 'Rows' and a metric to 'Values' in an Excel Pivot Table?"
+        options:
+          - "df.sort_values(by='column')"
+          - "df.groupby('dimension')['metric'].agg('sum')"
+          - "df.to_excel('output.xlsx')"
+          - "df.dropna()"
+        correct_index: 1
+        misconception_name: "Confusing Sorting with Aggregation"
+        error_type: "pandas_mental_model"
+        re_teach: "The groupby() method pairs with an aggregation function (sum, mean, count) to collapse data into group summaries, identical to an Excel Pivot Table."
+
+  - id: "m3_l3"
+    title: "Debugging Python Scripts with AI Assistance: Spotting Traps"
+    estimated_minutes: 15
+    concept: "Diagnosing Silent pandas Failure Modes with AI"
+    definition: "Silent failures in pandas are operations that execute without throwing an error message, but produce incorrect numerical results due to type coercion, chained assignment, or null handling."
+    why_it_matters: "A script with a syntax error halts immediately and causes no harm; a script with a silent data bug publishes corrupted metrics to executive decks."
+    analogy: "A syntax error is a check engine light that stops the car; a silent failure is a speedometer showing 60 mph while you are actually driving 90 mph."
+    explanation: >
+      When a Python script crashes with an explicit error (like `KeyError: 'revenue'`), asking an AI assistant to fix it 
+      is fast and effective. But the real danger for analytics leaders is the silent bug that doesn't crash. 
+      Three classic pandas traps fool both junior analysts and AI coding assistants:
+      1) String Concatenation Trap: If numbers were loaded as text objects, `sum()` concatenates the digits (`'100'` + `'200'` = `'100200'`) instead of adding them (`300`).
+      2) Silent Dropna: `df.dropna()` deleting 30% of customer records because an irrelevant optional column had empty values.
+      3) Chained Assignment Warning: Modifying a slice of a DataFrame (`df[df['spend']>100]['tier'] = 'VIP'`) which fails to update the underlying data.
+      Always inspect DataFrame `.info()`, `.shape`, and check row counts before and after filtering.
+    worked_example:
+      context: "Detecting and correcting a string type concatenation bug with AI."
+      code_or_query: |
+        # Silent bug: monthly_spend loaded as object/string
+        # df['monthly_spend'].sum() -> produces '4500180072006100...' (string concatenation!)
+
+        # Leader audit check:
+        print(df.dtypes['monthly_spend']) # If 'object', numbers are text!
+
+        # Correct conversion:
+        df['monthly_spend'] = pd.to_numeric(df['monthly_spend'], errors='coerce')
+        total_rev = df['monthly_spend'].sum()
+      line_by_line:
+        - line: "print(df.dtypes['monthly_spend'])"
+          explanation: "Prints the underlying storage type; 'object' indicates strings, while 'float64' or 'int64' indicates true numbers."
+        - line: "pd.to_numeric(df['monthly_spend'], errors='coerce')"
+          explanation: "Safely converts strings to numbers; errors='coerce' replaces malformed text with NaN rather than crashing."
+        - line: "total_rev = df['monthly_spend'].sum()"
+          explanation: "Computes true mathematical addition across valid numerical entries."
+    leader_questions:
+      what_to_ask: "Did you verify data types with df.info() and test for non-numeric characters before summing?"
+      good_answer: "Yes, we coerced numeric columns explicitly and verified that null counts matched our source system audit."
+      red_flag: "The code executed with no red error text, so the numbers must be correct."
+    check_questions:
+      - id: "m3_l3_q1"
+        prompt: "If a column containing sales amounts has data type 'object' in pandas, what happens when an analyst runs `.sum()` on that column?"
+        options:
+          - "Python displays a bright red fatal error message and halts execution."
+          - "Python performs string concatenation, pasting text strings together (e.g. '10' + '20' = '1020') without throwing an error."
+          - "Python automatically calls OpenAI to convert the strings."
+          - "Python converts the numbers into Roman numerals."
+        correct_index: 1
+        misconception_name: "Assuming Numeric Operations Always Add"
+        error_type: "type_coercion_trap"
+        re_teach: "In Python, adding strings concatenates them. If a numeric column has type 'object', sum() glues text together instead of performing arithmetic."
+
+  - id: "m3_l4"
+    title: "Technical Judgment: Evaluating an Analyst's Notebook"
+    estimated_minutes: 15
+    concept: "The Leader's Notebook Quality Rubric"
+    definition: "A structured evaluation rubric used by engineering and analytics leaders to assess whether an analysis is reliable, maintainable, and sound before business decisions are made."
+    why_it_matters: "Leaders must not be blinded by flashy charts or complex neural networks; they must scrutinize baseline assumptions, leakage, and validation methodology."
+    analogy: "Evaluating an analyst's notebook is like inspecting a building's foundation before admiring the penthouse view."
+    explanation: >
+      When an analyst or data scientist presents a notebook recommending a major strategic shift, 
+      how do you judge their technical work if you didn't write the code yourself? 
+      Apply the Four-Point Leader Audit:
+      1) Reproducibility: Does the notebook run top-to-bottom on fresh data without manual interventions or hardcoded local file paths (`C:/Users/John/Desktop`)?
+      2) Data Leakage: Did they normalize or scale features before splitting into train/test sets, accidentally letting future test data leak into the model?
+      3) Baseline Comparison: Did they compare their complex machine learning model against a simple heuristic (e.g. 'predict last month's spend') to prove real incremental value?
+      4) Business Sanity Check: Do the output metrics pass a sanity test against known financial totals?
+    worked_example:
+      context: "Spotting hardcoded paths and data leakage in a candidate notebook."
+      code_or_query: |
+        # RED FLAG 1: Fragile hardcoded local path
+        # df = pd.read_csv('/Users/analyst_mac/Downloads/final_data_v2_edit.csv')
+
+        # BEST PRACTICE: Relative reproducible path
+        from pathlib import Path
+        data_path = Path('content/sample_data/customers.csv')
+        df = pd.read_csv(data_path)
+      line_by_line:
+        - line: "from pathlib import Path"
+          explanation: "Imports Python's standard object-oriented filesystem path library."
+        - line: "data_path = Path('content/sample_data/customers.csv')"
+          explanation: "Uses a portable relative project path that runs seamlessly on any team member's machine or cloud server."
+        - line: "df = pd.read_csv(data_path)"
+          explanation: "Loads data cleanly without depending on personal desktop folders."
+    leader_questions:
+      what_to_ask: "What simple baseline did you compare this predictive model against to prove it beats a basic business rule?"
+      good_answer: "We compared the ML classifier against a simple rule predicting that customers with zero logins in 60 days churn; our model lifted precision by 18% over the baseline."
+      red_flag: "We didn't test any baseline because the neural network achieved 99% accuracy on the training data."
+    check_questions:
+      - id: "m3_l4_q1"
+        prompt: "Why is comparing a predictive machine learning model against a simple business heuristic (e.g. 'predict last month's value') essential for analytics leadership?"
+        options:
+          - "Because venture capital firms require heuristic comparisons in slide decks."
+          - "To verify that complex model development and ongoing maintenance costs deliver true incremental business uplift over trivial heuristics."
+          - "Because heuristics run faster on GPU clusters."
+          - "Because simple rules are never wrong."
+        correct_index: 1
+        misconception_name: "Valuing Model Complexity over Incremental ROI"
+        error_type: "leadership_judgment"
+        re_teach: "Never deploy complex ML when a simple rule of thumb achieves 90% of the value at 5% of the maintenance cost. Baseline comparison proves incremental ROI."

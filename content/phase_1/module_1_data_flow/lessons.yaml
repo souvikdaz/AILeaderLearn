@@ -1,0 +1,225 @@
+module_id: "module_1"
+title: "How Data Flows Through a Business"
+phase_id: "phase_1"
+description: "Trace data from transactional systems (OLTP) through ELT pipelines into data warehouses and semantic layers."
+
+lessons:
+  - id: "m1_l1"
+    title: "From Transaction to Decision: OLTP vs OLAP"
+    estimated_minutes: 12
+    concept: "Transactional Databases (OLTP) vs Analytical Data Warehouses (OLAP)"
+    definition: "An OLTP system is a transactional database optimized for fast single-row writes (like order checkouts), while an OLAP system is a columnar warehouse optimized for multi-million row aggregations and business analytics."
+    why_it_matters: "Querying operational transaction databases directly for executive reporting slows down production customer checkouts and causes system outages."
+    analogy: "An OLTP database is like a cash register receipt tape recorded item by item; an OLAP warehouse is the quarterly audited general ledger summary."
+    explanation: >
+      Every time a customer places an order or updates their address, an operational database (OLTP) 
+      writes a single row with millisecond speed. These systems prioritize high concurrency and data consistency.
+      However, when an analyst runs a complex query calculating 'Year-to-Date Customer Lifetime Value across 5 million users', 
+      running that heavy query directly on the production OLTP database locks tables and risks crashing customer transactions.
+      Modern architecture extracts transactional data into an analytical warehouse (OLAP), such as Snowflake, BigQuery, or Databricks. 
+      OLAP stores data by column rather than row. If you calculate average spend, the warehouse scans only the 'spend' column, 
+      speeding up queries by 100x and isolating business analytics from production systems.
+    worked_example:
+      context: "A leader directs where to query quarterly sales metrics."
+      code_or_query: |
+        -- OLTP query: Risk of table locking on live checkout database
+        -- OLAP query: Run on analytics replica/warehouse with columnar compression
+        SELECT 
+            DATE_TRUNC('month', order_date) AS order_month,
+            COUNT(DISTINCT customer_id) AS active_buyers,
+            SUM(amount) AS gross_revenue
+        FROM analytics_dw.marts.fct_orders
+        WHERE order_date >= '2024-01-01'
+        GROUP BY 1 ORDER BY 1;
+      line_by_line:
+        - line: "SELECT DATE_TRUNC('month', order_date) AS order_month,"
+          explanation: "Truncates each order timestamp down to the first day of its month for clean monthly grouping."
+        - line: "COUNT(DISTINCT customer_id) AS active_buyers,"
+          explanation: "Counts unique customers, preventing duplicate counting if a user made multiple purchases."
+        - line: "SUM(amount) AS gross_revenue"
+          explanation: "Sums order values across the entire monthly cohort."
+        - line: "FROM analytics_dw.marts.fct_orders"
+          explanation: "Queries the governed analytical data mart rather than the live production checkout database."
+        - line: "WHERE order_date >= '2024-01-01'"
+          explanation: "Filters for the current year to minimize unnecessary data scanning and reduce cloud warehouse cost."
+        - line: "GROUP BY 1 ORDER BY 1;"
+          explanation: "Groups and sorts chronologically by the first selected column (order_month)."
+    leader_questions:
+      what_to_ask: "Where does this dashboard query live data, and what is the refresh latency?"
+      good_answer: "It queries our analytical data warehouse mart refreshed every morning at 4 AM, completely isolated from production."
+      red_flag: "The dashboard is connected with a live direct connection to the production Postgres database."
+    check_questions:
+      - id: "m1_l1_q1"
+        prompt: "Why should an executive prohibit dashboards from querying the primary production OLTP database directly?"
+        options:
+          - "Because OLTP databases cannot store numbers larger than 10,000."
+          - "Because heavy analytical aggregations consume database memory and can freeze live customer transactions during peak hours."
+          - "Because OLTP databases automatically delete data after 24 hours."
+          - "Because SQL does not work on OLTP databases."
+        correct_index: 1
+        misconception_name: "Overlooking Production System Contention"
+        error_type: "architectural_risk"
+        re_teach: "Remember: OLTP databases power your customer checkout experience. Heavy executive queries lock rows and can take down live customer operations."
+
+  - id: "m1_l2"
+    title: "Excel MIS to Modern Data Pipelines: ETL vs ELT"
+    estimated_minutes: 15
+    concept: "Modern ELT (Extract, Load, Transform) vs Traditional ETL"
+    definition: "ELT loads raw business data directly into the cloud warehouse first and performs transformations inside the warehouse, whereas legacy ETL transformed data before loading."
+    why_it_matters: "With ELT, you never lose raw source data when business logic changes, eliminating multi-month data reloading projects."
+    analogy: "ETL is like chopping vegetables at the grocery store before bringing them home; ELT is bringing all groceries home whole into a walk-in pantry and cooking on demand."
+    explanation: >
+      In traditional MIS teams, analysts waited weeks for data engineers to build ETL pipelines that aggregated numbers 
+      before storing them. If the executive team later asked to change the revenue definition, the historical raw records 
+      were gone, requiring months of custom backfills.
+      In modern ELT, connectors (like Fivetran or Airbyte) ingest raw, granular transactions directly into a raw data lake or staging tables. 
+      Transformation tools (like dbt or SQL models) then transform the raw data into business-ready dimensions and metrics inside the warehouse. 
+      If metric definitions change, engineers simply re-run the transformation SQL against the preserved raw historical data.
+    worked_example:
+      context: "Comparing raw ingestion versus transformed business models in dbt."
+      code_or_query: |
+        -- Raw Stage: Exactly as received from Stripe API
+        -- analytics_dw.raw.stripe_charges (immutable raw event log)
+
+        -- Transformation Stage (dbt model): Governed business logic
+        WITH raw_charges AS (
+            SELECT * FROM raw.stripe_charges WHERE status = 'succeeded'
+        )
+        SELECT 
+            charge_id,
+            customer_id,
+            amount / 100.0 AS amount_usd,
+            created_at AS charge_timestamp
+        FROM raw_charges;
+      line_by_line:
+        - line: "WITH raw_charges AS ("
+          explanation: "Creates a common table expression (CTE) to isolate clean succeeded charges."
+        - line: "SELECT * FROM raw.stripe_charges WHERE status = 'succeeded'"
+          explanation: "Filters raw logs to capture only completed transactions, leaving failed attempts untouched in the raw layer."
+        - line: "amount / 100.0 AS amount_usd,"
+          explanation: "Converts Stripe integer cents into standard USD dollar decimals for reporting."
+        - line: "created_at AS charge_timestamp"
+          explanation: "Standardizes the raw UTC timestamp for downstream executive reporting."
+    leader_questions:
+      what_to_ask: "If we alter our definition of Churn today, can we recalculate historical numbers immediately from raw data?"
+      good_answer: "Yes, our raw layer retains immutable historical events, so we can re-execute our transformation models in hours."
+      red_flag: "No, our pipeline only stores the pre-calculated monthly sums; we would have to re-extract data from external SaaS APIs."
+    check_questions:
+      - id: "m1_l2_q1"
+        prompt: "What is the single biggest governance advantage of ELT over legacy ETL for an analytics leader?"
+        options:
+          - "ELT completely removes the need for data warehouses."
+          - "ELT preserves untouched raw historical records, allowing business logic and KPI definitions to be updated retroactively."
+          - "ELT guarantees that raw data has zero missing values."
+          - "ELT runs exclusively inside Microsoft Excel."
+        correct_index: 1
+        misconception_name: "Conflating Ingestion with Transformation"
+        error_type: "governance_misunderstanding"
+        re_teach: "In ELT, the raw data is loaded untouched first. When executives change metric definitions, you re-run the transformation code over historical raw data without data loss."
+
+  - id: "m1_l3"
+    title: "The Leader's Data Audit: Lineage & Single Source of Truth"
+    estimated_minutes: 15
+    concept: "Data Lineage and Single Source of Truth"
+    definition: "Data lineage is the complete, auditable map of data movement from its origin system through transformations to the final executive metric."
+    why_it_matters: "Without lineage, you cannot defend metrics in board meetings or know which downstream reports break when an upstream software engineer modifies a database field."
+    analogy: "Data lineage is like a food supply chain audit: if an ingredient is contaminated, you know exactly which restaurant dishes are affected."
+    explanation: >
+      Every analytics leader will face the board room crisis: two vice presidents present conflicting customer count numbers. 
+      VP Sales reports 1,400 customers from Salesforce, while VP Finance reports 1,120 customers from the ERP billing system. 
+      To resolve this, you need data lineage. Lineage documents the exact flow: Source API -> Staging Table -> dbt Model -> Semantic Layer -> Executive BI. 
+      By examining the transformation logic at each node, you discover that Sales counts trial signups, while Finance counts accounts with an active paid invoice. 
+      Your role as leader is not picking a favorite number; it is codifying the lineage and standardizing semantic definitions.
+    worked_example:
+      context: "Auditing conflicting customer metrics across departments."
+      code_or_query: |
+        -- Lineage Audit Trace
+        -- Node 1: raw.salesforce_accounts (Status: Lead, Trial, Active)
+        -- Node 2: raw.netsuite_invoices (Status: Paid, Due)
+        -- Node 3: analytics.dim_customers (Master Entity Reconciliation)
+        SELECT 
+            c.account_id,
+            c.sfdc_status,
+            c.billing_status,
+            CASE 
+                WHEN c.billing_status = 'Paid' THEN 'Active_Paying_Customer'
+                WHEN c.sfdc_status = 'Trial' THEN 'Trial_Prospect'
+                ELSE 'Inactive'
+            END AS governed_customer_tier
+        FROM analytics.dim_customers c;
+      line_by_line:
+        - line: "c.account_id, c.sfdc_status, c.billing_status,"
+          explanation: "Pulls the primary key alongside the raw status values from both upstream source systems."
+        - line: "CASE WHEN c.billing_status = 'Paid' THEN 'Active_Paying_Customer'"
+          explanation: "Applies the enterprise finance governance rule: only paying accounts qualify as official customers."
+        - line: "WHEN c.sfdc_status = 'Trial' THEN 'Trial_Prospect'"
+          explanation: "Segregates pre-revenue trial accounts into a distinct commercial pipeline tier."
+        - line: "END AS governed_customer_tier"
+          explanation: "Creates the single standardized semantic dimension consumed by both Sales and Finance."
+    leader_questions:
+      what_to_ask: "Show me the lineage DAG (Directed Acyclic Graph) for this Board KPI: which upstream tables feed it?"
+      good_answer: "The KPI is fed by fct_invoices and dim_accounts; both are documented in our data catalog with automated freshness tests."
+      red_flag: "An analyst exported data into a local CSV, manually adjusted outliers in Excel, and loaded it into Tableau."
+    check_questions:
+      - id: "m1_l3_q1"
+        prompt: "When two department heads report different customer counts to the CEO, what is your first leadership action?"
+        options:
+          - "Side with the department with the higher budget."
+          - "Trace the data lineage from raw source to reporting layer to identify where filters and definitions diverged."
+          - "Instruct both teams to delete their reports and start over."
+          - "Average the two numbers so both leaders feel validated."
+        correct_index: 1
+        misconception_name: "Superficial Conflict Resolution without Lineage"
+        error_type: "leadership_judgment"
+        re_teach: "Never compromise on metric integrity. Trace the lineage back to source systems to reveal the exact definitional difference."
+
+  - id: "m1_l4"
+    title: "Data Flow Bottlenecks: Schema Drift & Pipeline Failures"
+    estimated_minutes: 14
+    concept: "Schema Drift and Data Quality Contracts"
+    definition: "Schema drift occurs when an upstream application changes table structures, column names, or data formats without notifying downstream analytics teams, breaking pipelines."
+    why_it_matters: "Over 70% of silent dashboard errors are caused by upstream application developers altering database fields."
+    analogy: "Schema drift is like someone changing the electrical plug standard in your house overnight without telling you."
+    explanation: >
+      A common nightmare for analytics leaders is waking up on Monday to discover executive dashboards empty or corrupted. 
+      What happened? An upstream software engineer renamed 'user_id' to 'account_id' in the production app on Friday. 
+      The automated ELT sync failed silently or inserted NULL values throughout the warehouse.
+      To prevent this, modern data leaders implement Data Contracts. A data contract is an agreement between software engineering 
+      and analytics specifying the schema, data types, freshness SLAs, and alert thresholds. 
+      Automated schema validation catches unexpected column deletions in staging before corrupted records pollute executive reports.
+    worked_example:
+      context: "Automated schema contract test in SQL/dbt."
+      code_or_query: |
+        -- Schema Contract Test: Validates critical columns before data mart build
+        SELECT 
+            customer_id,
+            monthly_spend
+        FROM raw.customers_staging
+        WHERE customer_id IS NULL 
+           OR monthly_spend < 0;
+        -- If this query returns > 0 rows, pipeline halts immediately and alerts on Slack.
+      line_by_line:
+        - line: "SELECT customer_id, monthly_spend"
+          explanation: "Selects the two mission-critical columns being verified for integrity."
+        - line: "FROM raw.customers_staging"
+          explanation: "Inspects newly landed staging records prior to transforming them into the executive data mart."
+        - line: "WHERE customer_id IS NULL"
+          explanation: "Flags missing primary keys, which would cause join failures in downstream models."
+        - line: "OR monthly_spend < 0;"
+          explanation: "Catches corrupted negative spend values caused by upstream application bugs."
+    leader_questions:
+      what_to_ask: "What automated alerts trigger when upstream application developers modify table schemas?"
+      good_answer: "We run automated CI/CD schema validation tests; if a contract is breached, the pipeline blocks the merge and alerts both teams."
+      red_flag: "We usually find out the pipeline broke when an executive pings us that their dashboard is showing zeros."
+    check_questions:
+      - id: "m1_l4_q1"
+        prompt: "What is the primary role of a 'Data Contract' in modern enterprise data architecture?"
+        options:
+          - "A legal agreement signed with external cloud storage vendors to lower monthly hosting fees."
+          - "A technical specification agreed between application engineers and data teams that prevents unannounced schema changes from breaking reporting pipelines."
+          - "A contract guaranteeing that analysts work a maximum of 40 hours per week."
+          - "An NDA signed by all employees prior to viewing internal dashboards."
+        correct_index: 1
+        misconception_name: "Confusing Commercial Contracts with Technical Data Contracts"
+        error_type: "technical_terminology"
+        re_teach: "A data contract is a technical agreement between upstream software engineers and downstream data teams that defines schema structure, data types, and SLAs."

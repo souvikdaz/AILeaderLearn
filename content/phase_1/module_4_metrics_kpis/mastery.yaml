@@ -1,0 +1,70 @@
+module_id: "module_4"
+title: "Module 4 Mastery Check: Metrics, KPIs & Dashboard Reading"
+pass_threshold: 80.0
+max_attempts: 3
+
+questions:
+  - id: "m4_mc_1"
+    type: "multiple_choice"
+    prompt: "In a B2B SaaS business, which of the following is a true 'leading indicator' for future revenue churn?"
+    options:
+      - "Audited Annual Gross Churn Percentage reported by Finance."
+      - "A 35% decrease in weekly active user logins among admin accounts over a 30-day window."
+      - "The total number of invoices issued last quarter."
+      - "The company's stock price at market close."
+    correct_index: 1
+    points: 20
+    concept: "Leading vs Lagging Indicators"
+
+  - id: "m4_mc_2"
+    type: "multiple_choice"
+    prompt: "What is Goodhart's Law in the context of analytics leadership and KPI governance?"
+    options:
+      - "Every dashboard must load within 500 milliseconds."
+      - "When a metric is chosen as a sole executive target, people optimize to game the metric rather than achieve the underlying business goal."
+      - "SQL queries must always use lowercase keywords."
+      - "Data warehouses double in cost every two years."
+    correct_index: 1
+    points: 20
+    concept: "Goodhart's Law & Incentive Distortion"
+
+  - id: "m4_mc_3"
+    type: "multiple_choice"
+    prompt: "Why should an executive dashboard replace 'Cumulative Total Registered Users' with '30-Day Active Users'?"
+    options:
+      - "Because cumulative users is a vanity metric that never decreases, concealing active user churn and dormancy."
+      - "Because 30-day active users requires less database memory."
+      - "Because cumulative counts cannot be charted in Power BI."
+      - "Because marketing teams prefer smaller numbers."
+    correct_index: 0
+    points: 20
+    concept: "Purging Vanity Metrics"
+
+  - id: "m4_mc_code_reading"
+    type: "code_reading"
+    prompt: "Review the metric query snippet below. What subtle business mistake is embedded in this definition of 'Gross Churn Rate'?"
+    code_snippet: |
+      SELECT 
+          month,
+          (churned_customers + new_customers_acquired) * 1.0 / starting_customers AS churn_rate
+      FROM monthly_cohorts;
+    options:
+      - "It adds new customer acquisitions into the numerator, artificially inflating the churn rate and penalizing high sales growth."
+      - "It divides by starting_customers instead of ending_customers."
+      - "The multiplication by 1.0 creates a syntax error in SQL."
+      - "The query fails to use a window function."
+    correct_index: 0
+    points: 20
+    concept: "Metric Mathematical Integrity"
+
+  - id: "m4_mc_executive"
+    type: "executive_explanation"
+    prompt: "Explain to the Chief Executive Officer (CEO) why their executive dashboard showing '2 Million All-Time Registered Accounts' is masking a dangerous business crisis, and what 2 actionable metrics you will replace it with."
+    evaluation_criteria:
+      - "Identifies 'all-time registered accounts' as a vanity metric that conceals churn"
+      - "Explains the business risk (dormant/inactive accounts consuming infrastructure without revenue)"
+      - "Proposes concrete actionable replacements (e.g. 30-day active users, feature adoption depth, net revenue retention)"
+    sample_answer: >
+      All-time registered accounts is a vanity metric—it can only go up, giving the Board a false sense of security while hiding the fact that 90% of those accounts are dormant. Out of 2 million historical signups, only 45,000 users logged in last month. I am replacing that single number with two actionable metrics: Trailing 30-Day Active Users performing core transactions, and Net Revenue Retention (NRR) showing whether our active cohort is expanding or shrinking.
+    points: 20
+    concept: "Executive Communication of Metric Quality"

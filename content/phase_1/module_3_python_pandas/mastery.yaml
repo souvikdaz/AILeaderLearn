@@ -1,0 +1,71 @@
+module_id: "module_3"
+title: "Module 3 Mastery Check: Python & pandas for Leaders"
+pass_threshold: 80.0
+max_attempts: 3
+
+questions:
+  - id: "m3_mc_1"
+    type: "multiple_choice"
+    prompt: "An analyst shares a notebook with cell numbering: In [1], In [14], In [2], In [9]. What is the primary operational risk?"
+    options:
+      - "The notebook cannot be opened on Windows machines."
+      - "The execution sequence was non-linear, meaning variables in memory reflect an unrepeatable sequence and the code will likely fail or output different numbers when run cleanly."
+      - "The analyst violated Python copyright laws."
+      - "Jupyter notebooks automatically re-sort cells alphabetically upon export."
+    correct_index: 1
+    points: 20
+    concept: "Kernel State & Execution Order"
+
+  - id: "m3_mc_2"
+    type: "multiple_choice"
+    prompt: "Why is executing `df.dropna(inplace=True)` without specifying subset columns dangerous in production customer analytics?"
+    options:
+      - "It deletes the Python interpreter from the server."
+      - "If any optional column (such as secondary contact phone) has null values, it silently deletes those customer rows entirely, severely distorting sample counts and totals."
+      - "It converts all numbers into text format."
+      - "It causes pandas to crash with a syntax error."
+    correct_index: 1
+    points: 20
+    concept: "Silent Data Deletion via dropna"
+
+  - id: "m3_mc_3"
+    type: "multiple_choice"
+    prompt: "When using an AI coding assistant to help debug a pandas script, which practice represents disciplined technical leadership?"
+    options:
+      - "Accepting the AI's proposed code change without running tests as long as it looks clean."
+      - "Verifying DataFrame shape (row counts) before and after the AI's transformation, checking edge-case null handling, and running on fresh test data."
+      - "Asking the AI to write all scripts using only one-letter variable names."
+      - "Refusing to allow any AI tools to be used by the analytics team."
+    correct_index: 1
+    points: 20
+    concept: "AI Code Verification Methodology"
+
+  - id: "m3_mc_code_reading"
+    type: "code_reading"
+    prompt: "What will this snippet print, and how many rows will the resulting 'filtered' DataFrame contain?"
+    code_snippet: |
+      import pandas as pd
+      data = {'cust_id': [1, 2, 3, 4], 'spend': [500, 1200, None, 800]}
+      df = pd.DataFrame(data)
+      filtered = df[df['spend'] > 600]
+      print(len(filtered))
+    options:
+      - "4 rows, because None is treated as zero."
+      - "2 rows (cust_id 2 and 4), because comparisons with None/NaN evaluate to False and are excluded."
+      - "3 rows, because None causes a warning but is included."
+      - "An unhandled TypeError exception halting the program."
+    correct_index: 1
+    points: 20
+    concept: "pandas Boolean Filtering with Missing Values"
+
+  - id: "m3_mc_executive"
+    type: "executive_explanation"
+    prompt: "Explain to the Chief Customer Officer (CCO) why their churn dashboard reported an average churn rate of 35% when the true enterprise account churn was only 12%, due to an analyst's 'average of averages' calculation error."
+    evaluation_criteria:
+      - "Explains the difference between averaging subgroup percentages vs dividing total churned by total cohort"
+      - "Highlights how small sample segments (e.g. Starter tier with 2 churns out of 4 accounts = 50%) skewed the arithmetic mean"
+      - "Reassures executive that the corrected calculation weights accounts properly by revenue or true account volume"
+    sample_answer: >
+      The 35% figure was an arithmetic distortion known as an 'average of averages'. The analyst took the churn percentages of each tier (e.g. 50% on our tiny 4-customer Starter pilot and 10% on our 100-customer Enterprise base) and simply averaged the two percentages together (50 + 10 / 2 = 30%), treating 4 startup accounts as equal to 100 enterprise accounts. When we correctly divide our total 12 churned enterprise clients by our 100 total clients, our true churn rate is a healthy 12%.
+    points: 20
+    concept: "Executive Explanation of Mathematical Misconceptions"

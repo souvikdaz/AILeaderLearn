@@ -1,0 +1,223 @@
+module_id: "module_2"
+title: "Reading and Directing SQL for Analytics Leaders"
+phase_id: "phase_1"
+description: "Translate Excel VLOOKUP and pivot concepts to relational SQL joins, aggregations, query audits, and AI-assisted SQL prompt verification."
+
+lessons:
+  - id: "m2_l1"
+    title: "The Anatomy of a Query: SELECT, FROM, WHERE, GROUP BY"
+    estimated_minutes: 12
+    concept: "SQL Query Execution Order vs Written Order"
+    definition: "SQL is a declarative language where the written clause order differs from the order in which the database engine actually executes the query."
+    why_it_matters: "Understanding query execution order prevents leaders from approving queries with invalid aliases or non-indexable filters that spike cloud warehouse bills."
+    analogy: "A SQL query is like a restaurant order: the menu lists appetizers first, but the kitchen checks pantry inventory (FROM) and filters spoiled items (WHERE) before plating (SELECT)."
+    explanation: >
+      While a query is written starting with SELECT, the database engine executes it in a very specific sequence: 
+      FROM (identify the source table), WHERE (filter raw rows), GROUP BY (aggregate into buckets), 
+      HAVING (filter aggregated buckets), SELECT (return specific columns), and ORDER BY (sort output).
+      Knowing this sequence is an executive superpower. For instance, you cannot filter on a column alias created in SELECT 
+      inside your WHERE clause, because the WHERE clause executes before the SELECT clause has even run. 
+      When reviewing an analyst's SQL query for the board, checking whether filters are placed in WHERE (filtering early) 
+      versus HAVING (filtering late) reveals whether the query scans gigabytes of unnecessary data.
+    worked_example:
+      context: "A leader audits an analyst's regional revenue query."
+      code_or_query: |
+        SELECT 
+            c.region,
+            COUNT(DISTINCT c.customer_id) AS total_customers,
+            SUM(o.amount) AS total_sales
+        FROM customers c
+        JOIN orders o ON c.customer_id = o.customer_id
+        WHERE o.order_date >= '2024-01-01'
+        GROUP BY c.region
+        HAVING SUM(o.amount) > 50000
+        ORDER BY total_sales DESC;
+      line_by_line:
+        - line: "FROM customers c JOIN orders o ON c.customer_id = o.customer_id"
+          explanation: "Database executes this first: pairs customers with their corresponding orders."
+        - line: "WHERE o.order_date >= '2024-01-01'"
+          explanation: "Database executes this second: drops all pre-2024 rows immediately before performing heavy aggregations."
+        - line: "GROUP BY c.region"
+          explanation: "Database executes this third: collapses the filtered records into regional buckets."
+        - line: "HAVING SUM(o.amount) > 50000"
+          explanation: "Database executes this fourth: eliminates regions with under $50k in combined sales."
+        - line: "SELECT c.region, COUNT(DISTINCT c.customer_id) AS total_customers, SUM(o.amount) AS total_sales"
+          explanation: "Database executes this fifth: formats and labels the requested columns for display."
+        - line: "ORDER BY total_sales DESC;"
+          explanation: "Database executes this last: sorts regions from highest sales to lowest sales."
+    leader_questions:
+      what_to_ask: "Did you place our date and account status filters in the WHERE clause or after the aggregation in HAVING?"
+      good_answer: "In the WHERE clause, so the database prunes 90% of rows prior to calculating sums, keeping query run-time under 2 seconds."
+      red_flag: "We let the query aggregate the entire 10-year historical table and filtered at the very end in Tableau."
+    check_questions:
+      - id: "m2_l1_q1"
+        prompt: "Why can't you use a calculated column alias created in SELECT (e.g. 'SUM(amount) AS total_rev') inside the WHERE clause?"
+        options:
+          - "Because SQL only allows aliases in Excel exports."
+          - "Because the WHERE clause executes before the SELECT clause creates the alias in database memory."
+          - "Because aliases are restricted to numbers smaller than 1,000."
+          - "Because WHERE clauses only accept customer names."
+        correct_index: 1
+        misconception_name: "Confusing Written Order with Execution Order"
+        error_type: "sql_mental_model"
+        re_teach: "The SQL engine evaluates FROM and WHERE first, before SELECT ever runs. Aliases created in SELECT do not exist yet when WHERE is evaluated."
+
+  - id: "m2_l2"
+    title: "Joins Without Fear: VLOOKUP to SQL Joins"
+    estimated_minutes: 15
+    concept: "Relational Joins (INNER vs LEFT) and Cartesian Multiplications"
+    definition: "A SQL JOIN merges columns from two tables based on a shared key, functioning like a high-performance database VLOOKUP across millions of rows."
+    why_it_matters: "A misunderstood join silently multiplies transactions, artificially inflating reported revenue by millions of dollars in front of the board."
+    analogy: "A VLOOKUP returns only the first matching row it finds; a SQL JOIN matches EVERY matching row, which can multiply rows if keys are not unique."
+    explanation: >
+      In Excel, you use `=VLOOKUP(A2, Products!A:B, 2, FALSE)`. If there are three rows with the same Product ID in the lookup table, 
+      Excel quietly takes the first match and ignores the rest. 
+      SQL does not do this! A SQL JOIN will match all three rows. If an analyst joins an Orders table with a Promotions table 
+      where promo codes are duplicated, the query creates duplicate copies of each order. 
+      If an order for $10,000 matches two promo rows, the query sums $20,000. 
+      As a leader, whenever revenue numbers look unusually high, your first question must be: 'Did a one-to-many join cause a Cartesian fan-out?'
+    worked_example:
+      context: "Detecting duplicate join fan-out in revenue reporting."
+      code_or_query: |
+        -- DANGEROUS QUERY: Unaudited join causing duplicate revenue
+        SELECT 
+            c.customer_name,
+            SUM(o.amount) AS reported_revenue
+        FROM customers c
+        LEFT JOIN orders o ON c.customer_id = o.customer_id
+        LEFT JOIN support_tickets t ON c.customer_id = t.customer_id
+        GROUP BY c.customer_name;
+      line_by_line:
+        - line: "FROM customers c"
+          explanation: "Starts with the base customer entity table."
+        - line: "LEFT JOIN orders o ON c.customer_id = o.customer_id"
+          explanation: "Joins multiple orders per customer (one-to-many relationship)."
+        - line: "LEFT JOIN support_tickets t ON c.customer_id = t.customer_id"
+          explanation: "RED FLAG: Joins an independent one-to-many table; customer with 3 orders and 4 tickets generates 12 rows."
+        - line: "SUM(o.amount) AS reported_revenue"
+          explanation: "FATAL ERROR: The 3 order amounts are summed 4 times each, quadrupling reported customer revenue."
+    leader_questions:
+      what_to_ask: "What is the grain of the joined table before aggregation, and did we verify that the join key is unique?"
+      good_answer: "The grain is one row per order_id. We validated that the lookup dimension has zero duplicate keys using a COUNT(*) vs COUNT(DISTINCT) check."
+      red_flag: "We just joined customers, orders, and support tickets together in one query and summed everything."
+    check_questions:
+      - id: "m2_l2_q1"
+        prompt: "Why can joining two independent one-to-many tables (e.g. Orders and Support Tickets) in a single SQL query deceive executive decision-makers?"
+        options:
+          - "It triggers a Cartesian multiplication where order amounts are duplicated for each support ticket, massively inflating reported revenue."
+          - "It changes all negative numbers into positive numbers."
+          - "It deletes the customer's email address from the database."
+          - "It makes the query run too quickly to be accurate."
+        correct_index: 0
+        misconception_name: "Cartesian Fan-out Blindness"
+        error_type: "relational_multiplication"
+        re_teach: "When you join two child tables to one parent table without pre-aggregating, rows multiply across each other, duplicating metrics."
+
+  - id: "m2_l3"
+    title: "Aggregations & Metrics: SUMIFS to Window Functions"
+    estimated_minutes: 15
+    concept: "SQL Window Functions vs Standard Aggregations"
+    definition: "A window function performs a calculation across a set of table rows related to the current row without collapsing the rows into a single summary line."
+    why_it_matters: "Window functions allow leaders to analyze running totals, month-over-month growth, and customer cohort rankings in a single query."
+    analogy: "A GROUP BY is like an Excel Pivot Table that collapses 1,000 rows into 5 category rows; a Window Function is like adding a new calculated column in Excel that computes a running balance while keeping all 1,000 rows visible."
+    explanation: >
+      In Excel, calculating a running cumulative revenue balance or finding a customer's prior order date requires complex 
+      formulas across rows. In SQL, standard `GROUP BY` collapses your rows into a single summary record. 
+      Window functions (using the `OVER()` clause) give you the best of both worlds: they compute aggregate statistics 
+      while preserving every individual row's detail. 
+      For example, `LAG(revenue, 1) OVER (PARTITION BY client_id ORDER BY quarter)` lets you compute quarter-over-quarter 
+      retention and expansion without complex self-joins.
+    worked_example:
+      context: "Calculating customer order history and cumulative spend."
+      code_or_query: |
+        SELECT 
+            customer_id,
+            order_date,
+            amount,
+            SUM(amount) OVER (
+                PARTITION BY customer_id 
+                ORDER BY order_date
+            ) AS cumulative_customer_spend,
+            LAG(amount, 1) OVER (
+                PARTITION BY customer_id 
+                ORDER BY order_date
+            ) AS previous_order_amount
+        FROM orders;
+      line_by_line:
+        - line: "SUM(amount) OVER ("
+          explanation: "Instructs SQL to compute a rolling summation across a window of records."
+        - line: "PARTITION BY customer_id"
+          explanation: "Resets the rolling calculation to zero whenever a new customer begins."
+        - line: "ORDER BY order_date) AS cumulative_customer_spend,"
+          explanation: "Sums transactions chronologically, yielding an exact running total of customer value over time."
+        - line: "LAG(amount, 1) OVER (PARTITION BY customer_id ORDER BY order_date) AS previous_order_amount"
+          explanation: "Fetches the order amount from the immediate previous transaction for direct deal-size comparison."
+    leader_questions:
+      what_to_ask: "How did we calculate Month-over-Month growth in this report?"
+      good_answer: "We used a LAG() window function partitioned by business unit to compare current month revenue directly with previous month."
+      red_flag: "We exported the query to Excel, sorted manually, and wrote a cell formula referencing the row above."
+    check_questions:
+      - id: "m2_l3_q1"
+        prompt: "What is the key structural difference between GROUP BY and an OVER (PARTITION BY ...) window function?"
+        options:
+          - "GROUP BY works only with text; window functions work only with dates."
+          - "GROUP BY collapses multiple rows into a single aggregated row; window functions retain all individual rows while calculating metrics across them."
+          - "Window functions can only run in Microsoft Access."
+          - "GROUP BY is 100x slower in every scenario."
+        correct_index: 1
+        misconception_name: "Confusing Row Collapse with Window Framing"
+        error_type: "sql_mental_model"
+        re_teach: "GROUP BY collapses rows into summaries. Window functions calculate rolling totals, rankings, and lag values while keeping every individual row intact."
+
+  - id: "m2_l4"
+    title: "AI-Assisted SQL Writing & Verification: Spotting Hallucinations"
+    estimated_minutes: 15
+    concept: "Verifying AI-Generated SQL Queries"
+    definition: "AI-assisted SQL generation uses LLMs to convert natural language into database queries, requiring rigorous human verification of schema joins, filters, and null logic."
+    why_it_matters: "LLMs frequently hallucinate column names, create incorrect join keys, or omit edge-case business filters, creating plausible-looking queries that return completely wrong metrics."
+    analogy: "An LLM writing SQL is like an enthusiastic intern who writes beautiful syntax but doesn't know your company's actual invoice refund policies."
+    explanation: >
+      AI coding assistants (ChatGPT, Copilot, Claude) are exceptional at drafting boilerplate SQL queries in seconds. 
+      However, analytics leaders cannot simply copy-paste AI SQL into production BI tools. 
+      LLMs have predictable failure modes in SQL: 
+      1) Hallucinating columns that don't exist in your schema, 
+      2) Assuming standard column names (e.g. assuming `users.user_id` when your table uses `users.id`), 
+      3) Defaulting to INNER JOINs that silently discard valid un-transacted accounts, and 
+      4) Missing nuanced business exclusions (e.g. failing to filter out internal test accounts or refunded transactions). 
+      Your leadership role is verification: check the grain, check the filters, and verify row counts before and after joins.
+    worked_example:
+      context: "Verifying an AI-generated query for Monthly Active Users (MAU)."
+      code_or_query: |
+        -- AI Prompt: 'Give me monthly active users for 2024'
+        -- AI Generated Query (Contains 2 subtle business flaws):
+        SELECT 
+            DATE_TRUNC('month', login_time) AS login_month,
+            COUNT(user_id) AS active_users
+        FROM user_logins
+        GROUP BY 1;
+        -- Leader Verification Audit:
+        -- Flaw 1: COUNT(user_id) instead of COUNT(DISTINCT user_id) counts total logins, not unique users!
+        -- Flaw 2: Missing filter: WHERE is_internal_employee = 0 AND is_bot = 0.
+      line_by_line:
+        - line: "COUNT(user_id) AS active_users"
+          explanation: "RED FLAG: Counts non-null rows; if User 101 logged in 50 times in March, they are counted 50 times."
+        - line: "COUNT(DISTINCT user_id) AS active_users"
+          explanation: "LEADER FIX: Must be COUNT(DISTINCT) to measure actual unique human beings."
+        - line: "WHERE is_internal_employee = 0 AND is_bot = 0"
+          explanation: "LEADER FIX: Crucial business filter omitted by AI because it had no domain context."
+    leader_questions:
+      what_to_ask: "What steps did you take to verify this AI-generated query against actual business edge cases?"
+      good_answer: "We checked that COUNT(DISTINCT) was used for unique entities, verified join uniqueness, and added filters for internal test accounts and refunds."
+      red_flag: "The AI generated it with zero syntax errors, so we pasted it straight into the executive report."
+    check_questions:
+      - id: "m2_l4_q1"
+        prompt: "When an AI assistant generates a SQL query to calculate 'Monthly Active Customers', what is the most common subtle error to watch out for?"
+        options:
+          - "The AI will automatically format the output in German."
+          - "The AI uses COUNT(customer_id) instead of COUNT(DISTINCT customer_id), erroneously reporting total session volume as unique active customers."
+          - "The AI deletes the database table upon execution."
+          - "The AI refuses to use GROUP BY clauses."
+        correct_index: 1
+        misconception_name: "Over-trusting AI Syntax without Business Logic Verification"
+        error_type: "ai_verification_blindspot"
+        re_teach: "Always verify entity uniqueness. AI often writes COUNT(column) instead of COUNT(DISTINCT column), conflating total activity events with unique users."

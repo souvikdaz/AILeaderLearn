@@ -1,0 +1,64 @@
+lab_id: "m3_lab"
+module_id: "module_3"
+title: "Lab 3: Debug & Recalculate Customer Retention in pandas"
+type: "python"
+runner: "python"
+sample_data_file: "content/sample_data/customers.csv"
+
+brief: >
+  An analyst drafted a pandas script to report customer retention metrics across subscription tiers.
+  However, their script contains two critical errors:
+  1. It attempts to calculate the churn rate using string columns without converting churned status to numeric.
+  2. It groups by 'plan' but calculates the average of customer churn rates rather than dividing total churned accounts by total accounts.
+  
+  Your task:
+  1. Load the customer CSV using pandas.
+  2. Calculate a binary churn flag `df['churned'] = (df['is_active'] == 0).astype(int)`.
+  3. Group by `plan` and calculate:
+     - `total_customers`: count of `customer_id`
+     - `total_spend`: sum of `monthly_spend`
+     - `churn_rate`: sum of `churned` divided by total `customer_id` count (rounded to 3 decimal places)
+  4. Print the final summary DataFrame.
+  5. Answer the 'explain this line' check on the churn calculation.
+
+starter_code: |
+  import pandas as pd
+
+  # Load customers
+  df = pd.read_csv('content/sample_data/customers.csv')
+
+  # Fix this broken calculation:
+  # 1. Create binary churn flag: df['churned'] = (df['is_active'] == 0).astype(int)
+  # 2. Group by 'plan' and aggregate total_customers and total_spend
+  # 3. Compute churn_rate as churned_sum / total_customers
+
+  summary = df.groupby('plan').agg(
+      total_customers=('customer_id', 'count'),
+      total_spend=('monthly_spend', 'sum')
+  ).reset_index()
+
+  print(summary)
+
+expected_solution: |
+  import pandas as pd
+
+  df = pd.read_csv('content/sample_data/customers.csv')
+  df['churned'] = (df['is_active'] == 0).astype(int)
+
+  summary = df.groupby('plan').agg(
+      total_customers=('customer_id', 'count'),
+      churned_count=('churned', 'sum'),
+      total_spend=('monthly_spend', 'sum')
+  ).reset_index()
+
+  summary['churn_rate'] = (summary['churned_count'] / summary['total_customers']).round(3)
+  print(summary[['plan', 'total_customers', 'total_spend', 'churn_rate']])
+
+expected_output_contains: ["total_customers", "churn_rate", "Enterprise", "Professional", "Starter"]
+
+explain_line_check:
+  line_number: 4
+  target_line: "df['churned'] = (df['is_active'] == 0).astype(int)"
+  prompt: "Explain why converting the boolean condition (df['is_active'] == 0) to integer (.astype(int)) is essential for downstream aggregations."
+  rubric_keywords: ["boolean", "integer", "sum", "true", "false", "numeric", "math"]
+  sample_good_answer: "The comparison produces True/False boolean flags. Converting to integer (1 and 0) allows pandas to perform mathematical operations like .sum() to count the exact number of churned accounts."

@@ -1,0 +1,61 @@
+project_id: "m4_project"
+module_id: "module_4"
+title: "Project 4: Enterprise KPI Tree Design & Executive Dashboard Critique"
+phase_id: "phase_1"
+allowed_extensions: [".md", ".docx", ".pdf", ".txt", ".xlsx", ".pptx"]
+min_words: 350
+max_words: 1500
+
+scenario: >
+  The Executive Board of CloudScale (a $50M ARR enterprise workflow platform) is frustrated. 
+  Their current executive dashboard contains 34 disparate charts, combining web visitors, server CPU usage, 
+  sales pipeline, and customer support tickets on a single screen. 
+  Despite record 'registered user' signups, Net Revenue Retention plummeted from 115% to 88% over the past two quarters, 
+  and the Board was blindsided.
+  
+  Deliverable:
+  Submit a complete Executive KPI Redesign Brief:
+  1. A structured Enterprise KPI Tree decomposing Net Recurring Revenue into:
+     - Lagging financial outcomes
+     - Leading operational drivers across Sales, Product, and Customer Success
+     - Counter-balancing quality guardrails (preventing Goodhart's Law gaming)
+  2. A rigorous Dashboard Critique:
+     - Identification of top 3 vanity metrics currently on the board dashboard and why they failed to warn of the NRR drop.
+     - A revised 5-widget C-suite executive dashboard wireframe specification with governed metric definitions.
+
+required_sections:
+  - "Executive Summary & Situation Overview"
+  - "The Governed KPI Tree Architecture"
+  - "Leading vs Lagging Indicator Framework"
+  - "Critical Audit of the Current 34-Chart Dashboard"
+  - "Proposed C-Suite Action Dashboard & Governance Charter"
+
+required_keywords:
+  - "KPI tree"
+  - "leading indicator"
+  - "lagging"
+  - "Net Revenue Retention"
+  - "vanity metric"
+
+rubric:
+  criteria:
+    - id: "kpi_hierarchy"
+      name: "KPI Tree Hierarchy & Mathematical Decomposition"
+      weight: 25
+      pass_threshold: 20
+      description: "Is the KPI tree logically structured, correctly linking root financial metrics to actionable frontline operational drivers?"
+    - id: "leading_indicators"
+      name: "Leading vs Lagging Distinction & Predictive Power"
+      weight: 25
+      pass_threshold: 20
+      description: "Does the brief identify genuine leading indicators with clear causal mechanisms rather than repackaged lagging metrics?"
+    - id: "dashboard_critique"
+      name: "Dashboard Critique & Vanity Metric Elimination"
+      weight: 25
+      pass_threshold: 20
+      description: "Are vanity metrics clearly diagnosed with the 'So What?' test, and replaced with high-signal decision metrics?"
+    - id: "executive_readability"
+      name: "Executive Readability, Layout & Tone"
+      weight: 25
+      pass_threshold: 20
+      description: "Is the brief C-suite ready, using structured tables, bulleted takeaways, and concise strategic language?"

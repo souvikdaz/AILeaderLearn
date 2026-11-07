@@ -1,0 +1,40 @@
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv/
+
+# Environment Variables
+.env
+*.env.local
+
+# Python cache & build
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Submissions storage (keep folder with .gitkeep)
+submissions/*
+!submissions/.gitkeep
+
+# Local SQLite databases (keep schema and migrations, ignore test/dev db if desired)
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+db/*.db
+db/*.db-shm
+db/*.db-wal
+!db/*.sql
+
+# Streamlit runtime
+.streamlit/secrets.toml

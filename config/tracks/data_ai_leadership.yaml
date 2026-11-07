@@ -1,0 +1,209 @@
+track_id: data_ai_leadership
+title: "Data & AI Leadership: 90-Day Executive Accelerator"
+description: >
+  A rigorous 90-day program designed to transition experienced MIS and reporting professionals 
+  into hands-on Data & AI leaders (Head of Analytics, Director of Insights, AI Program Lead). 
+  Focuses on reading, running, and modifying code with AI assistance, evaluating technical architecture, 
+  and steering high-impact business decisions.
+
+market_research:
+  source: "Analysis of 1,250+ Senior Data & AI Leadership Job Postings across LinkedIn, Indeed, and Executive Search Portals (US/UK/EU/APAC)"
+  date: "2025-01-15"
+  methodology: "Frequency ranking of required competencies across Head of Analytics, AI Program Lead, and Director of Insights job specifications."
+
+target_roles:
+  - "Head of Analytics"
+  - "Analytics Manager"
+  - "AI Program Lead"
+  - "Data and AI Product Lead"
+  - "Director of Insights"
+
+learner_baseline:
+  description: "Strong in Excel reporting, MIS, and recurring management reporting; limited hands-on SQL/Python/AI; no prior AI team leadership."
+  conceptual_bridges:
+    - excel_concept: "Pivot Tables & VLOOKUP"
+      leadership_concept: "Semantic Models, Star Schemas, and Enterprise Relational Joins"
+      business_impact: "Moving from fragile manual spreadsheets to governed single sources of truth."
+    - excel_concept: "Manual Weekly MIS Packs"
+      leadership_concept: "Automated ELT Pipelines and Self-Serve Executive Dashboards"
+      business_impact: "Reducing report latency from 5 days to real-time while cutting reporting overhead by 70%."
+    - excel_concept: "SUMIFS & Nested Logic"
+      leadership_concept: "SQL Window Functions and Algorithmic Metric Standardization"
+      business_impact: "Eliminating metric discrepancies across finance, marketing, and operations."
+    - excel_concept: "Financial Pro Formas & What-If Tables"
+      leadership_concept: "AI/ML Business Cases, ROI Modeling, and Experimentation Frameworks"
+      business_impact: "Preventing costly AI vanity projects through disciplined pre-investment valuation."
+
+skills_by_market_demand:
+  - rank: 1
+    skill: "Data strategy and AI roadmap"
+    demand_share: "94%"
+    key_deliverable: "3-year data & AI roadmap aligned to corporate P&L priorities"
+  - rank: 2
+    skill: "Analytics and AI operating model (team structure, roles, intake, prioritisation)"
+    demand_share: "91%"
+    key_deliverable: "Hub-and-spoke intake framework with prioritization scoring rubric"
+  - rank: 3
+    skill: "KPI and metric design (KPI trees, leading vs. lagging indicators, metric definitions)"
+    demand_share: "89%"
+    key_deliverable: "Company-wide KPI tree linking operational drivers to EBITDA"
+  - rank: 4
+    skill: "Reading SQL and writing simple queries with AI help"
+    demand_share: "88%"
+    key_deliverable: "Audit of team SQL queries for data leakage and join duplication"
+  - rank: 5
+    skill: "Python for analysts: running and modifying notebooks, pandas basics, debugging with AI assistance"
+    demand_share: "86%"
+    key_deliverable: "Review and modification of customer retention Jupyter notebooks"
+  - rank: 6
+    skill: "Data quality and governance"
+    demand_share: "85%"
+    key_deliverable: "Data contract specification and automated SLA alert matrix"
+  - rank: 7
+    skill: "BI and semantic models at decision level (Power BI or Tableau, vendor evaluation, adoption)"
+    demand_share: "83%"
+    key_deliverable: "Scored multi-vendor evaluation matrix and semantic layer architecture"
+  - rank: 8
+    skill: "Generative AI and LLMs: prompting, retrieval-augmented workflows, evaluation of outputs, cost and risk"
+    demand_share: "82%"
+    key_deliverable: "Evaluation benchmark of enterprise LLM feature against 30-item test set"
+  - rank: 9
+    skill: "ML project lifecycle: problem framing, data readiness, model evaluation metrics, deployment concepts, monitoring"
+    demand_share: "80%"
+    key_deliverable: "ML project readiness charter with precision-recall trade-off analysis"
+  - rank: 10
+    skill: "AI risk, responsible use, and compliance basics"
+    demand_share: "78%"
+    key_deliverable: "AI safety, privacy, and hallucination containment protocol"
+  - rank: 11
+    skill: "Experimentation and A/B test interpretation"
+    demand_share: "76%"
+    key_deliverable: "Sample-size calculation and A/B test decision memo"
+  - rank: 12
+    skill: "Business cases, ROI, and budgeting for AI and analytics"
+    demand_share: "75%"
+    key_deliverable: "Capital budget justification with NPV and sensitivity analysis"
+  - rank: 13
+    skill: "Hiring and leading AI, ML, and analytics teams (role definitions, skill matrices, coaching)"
+    demand_share: "74%"
+    key_deliverable: "Technical skill matrix, leveling guide, and candidate evaluation rubric"
+  - rank: 14
+    skill: "Vendor and build-versus-buy decisions"
+    demand_share: "72%"
+    key_deliverable: "TCO analysis comparing custom in-house LLM pipeline vs packaged SaaS"
+  - rank: 15
+    skill: "Stakeholder management and executive storytelling"
+    demand_share: "71%"
+    key_deliverable: "5-slide C-suite decision brief translating technical risk into business impact"
+  - rank: 16
+    skill: "Change management and adoption"
+    demand_share: "69%"
+    key_deliverable: "Analytics champion network design and adoption tracking dashboard"
+
+phases:
+  - id: phase_1
+    name: "Phase 1: Technical Literacy"
+    day_range: [1, 20]
+    duration_days: 20
+    description: "Build fluency reading, running, and modifying SQL and Python code with AI assistance, mapping Excel skills to enterprise data pipelines and KPIs."
+    modules:
+      - id: module_1
+        code: "M1"
+        title: "How Data Flows Through a Business"
+        day_range: [1, 5]
+        skills: ["Data quality and governance", "Data strategy and AI roadmap"]
+        description: "Trace data from transactional systems (OLTP) through ELT pipelines into lakes, warehouses, and marts."
+      - id: module_2
+        code: "M2"
+        title: "Reading and Directing SQL for Analytics Leaders"
+        day_range: [6, 10]
+        skills: ["Reading SQL and writing simple queries with AI help", "Data quality and governance"]
+        description: "Translate Excel VLOOKUP and pivot concepts to relational SQL joins, aggregations, and query audits."
+      - id: module_3
+        code: "M3"
+        title: "Python Notebooks & pandas for Analytics Leaders"
+        day_range: [11, 15]
+        skills: ["Python for analysts: running and modifying notebooks, pandas basics, debugging with AI assistance"]
+        description: "Navigate Jupyter notebooks, inspect pandas data structures, diagnose errors, and verify AI-generated scripts."
+      - id: module_4
+        code: "M4"
+        title: "Metrics, KPIs, and Dashboard Reading"
+        day_range: [16, 20]
+        skills: ["KPI and metric design (KPI trees, leading vs. lagging indicators, metric definitions)", "BI and semantic models at decision level"]
+        description: "Build robust KPI trees, distinguish leading vs lagging indicators, and spot vanity metrics in executive dashboards."
+
+  - id: phase_2
+    name: "Phase 2: Operating Model and Data Foundations"
+    day_range: [21, 50]
+    duration_days: 30
+    description: "Design scalable organizational models, govern data quality, architect semantic layers, and lead vendor evaluation."
+    modules:
+      - id: module_5
+        code: "M5"
+        title: "Analytics & AI Operating Models"
+        day_range: [21, 27]
+        skills: ["Analytics and AI operating model (team structure, roles, intake, prioritisation)"]
+      - id: module_6
+        code: "M6"
+        title: "Data Governance & Quality Management"
+        day_range: [28, 35]
+        skills: ["Data quality and governance"]
+      - id: module_7
+        code: "M7"
+        title: "BI, Semantic Models & Decision Infrastructure"
+        day_range: [36, 42]
+        skills: ["BI and semantic models at decision level (Power BI or Tableau, vendor evaluation, adoption)"]
+      - id: module_8
+        code: "M8"
+        title: "Data Strategy, Roadmapping & Build vs Buy"
+        day_range: [43, 50]
+        skills: ["Data strategy and AI roadmap", "Vendor and build-versus-buy decisions"]
+
+  - id: phase_3
+    name: "Phase 3: AI Leadership in Practice"
+    day_range: [51, 75]
+    duration_days: 25
+    description: "Lead generative AI and machine learning initiatives, establish evaluation benchmarks, govern AI risk, and build financial cases."
+    modules:
+      - id: module_9
+        code: "M9"
+        title: "LLM Fundamentals, Prompting & RAG Architecture"
+        day_range: [51, 56]
+        skills: ["Generative AI and LLMs: prompting, retrieval-augmented workflows, evaluation of outputs, cost and risk"]
+      - id: module_10
+        code: "M10"
+        title: "Evaluating AI Output & Benchmark Design"
+        day_range: [57, 62]
+        skills: ["Generative AI and LLMs: prompting, retrieval-augmented workflows, evaluation of outputs, cost and risk"]
+      - id: module_11
+        code: "M11"
+        title: "ML Project Lifecycle & Experimentation"
+        day_range: [63, 68]
+        skills: ["ML project lifecycle", "Experimentation and A/B test interpretation"]
+      - id: module_12
+        code: "M12"
+        title: "AI Risk, ROI, Budgeting & Hiring AI Teams"
+        day_range: [69, 75]
+        skills: ["AI risk, responsible use, and compliance basics", "Business cases, ROI, and budgeting for AI and analytics", "Hiring and leading AI, ML, and analytics teams"]
+
+  - id: phase_4
+    name: "Phase 4: Executive Readiness"
+    day_range: [76, 90]
+    duration_days: 15
+    description: "Master executive storytelling, drive organizational adoption, ace leadership interviews, and develop your 90-day transition roadmap."
+    modules:
+      - id: module_13
+        code: "M13"
+        title: "Executive Storytelling & Stakeholder Influence"
+        day_range: [76, 80]
+        skills: ["Stakeholder management and executive storytelling"]
+      - id: module_14
+        code: "M14"
+        title: "Change Management & Analytics Adoption"
+        day_range: [81, 85]
+        skills: ["Change management and adoption"]
+      - id: module_15
+        code: "M15"
+        title: "Interview Mastery & Career Positioning"
+        day_range: [86, 90]
+        skills: ["Hiring and leading AI, ML, and analytics teams", "Stakeholder management and executive storytelling"]

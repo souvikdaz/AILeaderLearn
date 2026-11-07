@@ -1,0 +1,73 @@
+module_id: "module_2"
+title: "Module 2 Mastery Check: Reading & Directing SQL"
+pass_threshold: 80.0
+max_attempts: 3
+
+questions:
+  - id: "m2_mc_1"
+    type: "multiple_choice"
+    prompt: "In SQL query execution order, which clause is evaluated first by the database engine?"
+    options:
+      - "SELECT"
+      - "FROM (including JOINs)"
+      - "ORDER BY"
+      - "HAVING"
+    correct_index: 1
+    points: 20
+    concept: "Query Execution Order"
+
+  - id: "m2_mc_2"
+    type: "multiple_choice"
+    prompt: "An analyst left-joins the 'accounts' table with the 'invoices' table. One account has 4 unpaid invoices. What happens to that account's row count in the output?"
+    options:
+      - "It remains exactly one row with the invoices concatenated in a single cell."
+      - "It expands to 4 rows, one for each matching invoice."
+      - "It returns an error because 1-to-many joins are prohibited."
+      - "It replaces the account name with the word MULTIPLE."
+    correct_index: 1
+    points: 20
+    concept: "One-to-Many Relational Joins"
+
+  - id: "m2_mc_3"
+    type: "multiple_choice"
+    prompt: "When prompting an AI assistant to generate SQL queries, what is the most reliable way to avoid hallucinated column names?"
+    options:
+      - "Set the model temperature to maximum (2.0)."
+      - "Provide the exact CREATE TABLE DDL schema or table schema documentation directly in the AI prompt context."
+      - "Tell the AI to write the query in uppercase letters."
+      - "Use Python instead of SQL."
+    correct_index: 1
+    points: 20
+    concept: "AI-Assisted Query Verification"
+
+  - id: "m2_mc_code_reading"
+    type: "code_reading"
+    prompt: "Review the query below. If customer 101 has total sales of $40,000 and customer 102 has total sales of $120,000, which customers appear in the final output?"
+    code_snippet: |
+      SELECT 
+          customer_id,
+          SUM(amount) AS total_revenue
+      FROM orders
+      WHERE status = 'Completed'
+      GROUP BY customer_id
+      HAVING SUM(amount) >= 100000;
+    options:
+      - "Both customer 101 and 102 appear because WHERE status = 'Completed' is satisfied."
+      - "Only customer 102 appears, because the HAVING clause filters out groups whose aggregate sum is less than $100,000."
+      - "Neither customer appears because HAVING requires a subquery."
+      - "Customer 101 appears, but their revenue is rounded up to $100,000."
+    correct_index: 1
+    points: 20
+    concept: "HAVING Clause Filtering on Aggregations"
+
+  - id: "m2_mc_executive"
+    type: "executive_explanation"
+    prompt: "Explain to the Chief Revenue Officer (CRO) why their board dashboard showed revenue doubling overnight after an analyst added a 'Promotions' table join, and how your team corrected it."
+    evaluation_criteria:
+      - "Explains the one-to-many duplicate row fan-out (Cartesian multiplication) in plain terms"
+      - "Assures the executive that actual cash collections were unchanged"
+      - "Explains the corrective technical fix (pre-aggregating promo codes or distinct grouping)"
+    sample_answer: >
+      Our cash collections never changed—the revenue spike was an optical calculation glitch. When our analyst joined orders to customer promotion records, orders that used two discount vouchers split into two duplicate rows, causing the database to count the transaction amount twice. We fixed the query to deduplicate promotions before joining, returning our reported revenue to its true audited figure.
+    points: 20
+    concept: "Executive Communication of Metric Discrepancies"

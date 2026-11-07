@@ -1,0 +1,70 @@
+phase_id: "phase_2"
+phase_name: "Phase 2: Operating Model and Data Foundations"
+day_range: [21, 50]
+duration_days: 30
+objective: "Design scalable organizational models, govern data quality, architect semantic layers, and lead vendor evaluation."
+
+modules:
+  - id: "module_5"
+    code: "M5"
+    title: "Analytics & AI Operating Models"
+    day_range: [21, 27]
+    skills: ["Analytics and AI operating model (team structure, roles, intake, prioritisation)"]
+    objectives:
+      - "Evaluate Centralized, Decentralized, and Hub-and-Spoke (Federated) organizational topologies."
+      - "Establish an executive demand intake framework with transparent ROI scoring."
+      - "Eliminate ad-hoc reporting backlog friction through self-serve tiers."
+    lab:
+      title: "Lab 5: Demand Intake Matrix & Request Prioritization Scoring Engine"
+      brief: "Build and test a mathematical prioritization scoring algorithm (Business Impact x Strategic Alignment / Engineering Effort) in Python/DuckDB."
+    project_brief:
+      title: "Phase 2 Capstone Part 1: Enterprise Analytics & AI Operating Model Charter"
+      deliverable: "A 4-to-6 page organizational blueprint defining team roles, interaction models, SLA charters, and intake prioritization rubrics."
+
+  - id: "module_6"
+    code: "M6"
+    title: "Data Governance & Quality Management"
+    day_range: [28, 35]
+    skills: ["Data quality and governance"]
+    objectives:
+      - "Implement data contracts between upstream software engineering and analytics."
+      - "Establish automated freshness, null-rate, and schema drift SLA alerts."
+      - "Design role-based access control (RBAC) and privacy compliance protocols (GDPR/CCPA)."
+    lab:
+      title: "Lab 6: Automated Data Contract Validation & SLA Alerting Simulation"
+      brief: "Configure automated schema tests that catch breaking API changes before they reach executive dashboards."
+    project_brief:
+      title: "Data Governance Framework & Incident Escalation Policy"
+      deliverable: "A comprehensive governance manual with data catalog standards and Sev-1 data outage response playbooks."
+
+  - id: "module_7"
+    code: "M7"
+    title: "BI, Semantic Models & Decision Infrastructure"
+    day_range: [36, 42]
+    skills: ["BI and semantic models at decision level (Power BI or Tableau, vendor evaluation, adoption)"]
+    objectives:
+      - "Architect enterprise semantic layers (MetricFlow, Cube, Power BI semantic models)."
+      - "Compare Power BI vs Tableau vs Looker on cost, governance, self-serve adoption, and cloud lock-in."
+      - "Drive user adoption and purge zombie dashboards."
+    lab:
+      title: "Lab 7: Multi-Vendor BI Evaluation Matrix & Scored Decision Engine"
+      brief: "Run an interactive trade-off model scoring BI vendors across total cost of ownership (TCO), governance, and user adoption."
+    project_brief:
+      title: "BI Vendor Selection & Semantic Layer Architecture Memo"
+      deliverable: "A board-level investment memo recommending enterprise BI consolidation with a 3-year TCO calculation."
+
+  - id: "module_8"
+    code: "M8"
+    title: "Data Strategy, Roadmapping & Build vs Buy"
+    day_range: [43, 50]
+    skills: ["Data strategy and AI roadmap", "Vendor and build-versus-buy decisions"]
+    objectives:
+      - "Formulate a 3-year data and AI strategy aligned to corporate revenue and EBITDA targets."
+      - "Apply the Build vs Buy decision matrix to software and model infrastructure."
+      - "Construct a quarterly milestone roadmap balancing quick commercial wins with long-term foundations."
+    lab:
+      title: "Lab 8: Build vs Buy Net Present Value (NPV) & Sensitivity Model"
+      brief: "Evaluate the 3-year financial break-even of in-house custom data platform development versus commercial managed SaaS."
+    project_brief:
+      title: "Phase 2 Capstone: 12-Month Enterprise Data & AI Strategic Roadmap"
+      deliverable: "Executive strategy deck and roadmap document aligning data investments with corporate growth pillars."

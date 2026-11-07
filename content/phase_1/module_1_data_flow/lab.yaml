@@ -1,0 +1,58 @@
+lab_id: "m1_lab"
+module_id: "module_1"
+title: "Lab 1: Pipeline Lineage Audit & Schema Re-Alignment"
+type: "sql"
+runner: "duckdb"
+database_tables:
+  customers: "content/sample_data/customers.csv"
+  orders: "content/sample_data/orders.csv"
+
+brief: >
+  Your automated ELT pipeline syncs customers and orders into an analytical data mart.
+  However, the executive dashboard shows missing revenue for 2024 because the existing query uses an incorrect join 
+  and an unhandled NULL filter that drops valid enterprise customers who have not placed a recent order.
+  
+  Your task:
+  1. Fix the query below to perform a LEFT JOIN from customers to orders.
+  2. Aggregate total lifetime spend per customer, using COALESCE to replace NULL with 0 for customers with no orders.
+  3. Filter out churned accounts (is_active = 0) so the executive view shows only active accounts.
+  4. Run the query to verify expected output.
+  5. Answer the 'explain this line' check on the COALESCE logic.
+
+starter_code: |
+  -- Fix this pipeline query:
+  -- 1. Change INNER JOIN to LEFT JOIN
+  -- 2. Use COALESCE(SUM(o.amount), 0) as total_order_spend
+  -- 3. Filter for active customers only (c.is_active = 1)
+  -- 4. Group by customer_id and customer_name
+  SELECT 
+      c.customer_id,
+      c.customer_name,
+      c.plan,
+      SUM(o.amount) AS total_order_spend
+  FROM customers c
+  INNER JOIN orders o ON c.customer_id = o.customer_id
+  WHERE o.status = 'Completed'
+  GROUP BY c.customer_id, c.customer_name, c.plan;
+
+expected_query: |
+  SELECT 
+      c.customer_id,
+      c.customer_name,
+      c.plan,
+      COALESCE(SUM(o.amount), 0) AS total_order_spend
+  FROM customers c
+  LEFT JOIN orders o ON c.customer_id = o.customer_id AND o.status = 'Completed'
+  WHERE c.is_active = 1
+  GROUP BY c.customer_id, c.customer_name, c.plan
+  ORDER BY c.customer_id;
+
+expected_columns: ["customer_id", "customer_name", "plan", "total_order_spend"]
+expected_min_rows: 7
+
+explain_line_check:
+  line_number: 4
+  target_line: "COALESCE(SUM(o.amount), 0) AS total_order_spend"
+  prompt: "Explain why COALESCE is required here and what happens to non-technical executives reading the dashboard if it is omitted."
+  rubric_keywords: ["null", "zero", "missing", "confus", "executive", "blank"]
+  sample_good_answer: "COALESCE converts NULL values from the LEFT JOIN into 0. Without it, active accounts with zero orders display as blank/NULL, confusing executives into thinking data is missing."

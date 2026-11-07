@@ -1,0 +1,59 @@
+project_id: "m3_project"
+module_id: "module_3"
+title: "Project 3: Customer Churn Analysis Notebook & Executive Decision Brief"
+phase_id: "phase_1"
+allowed_extensions: [".ipynb", ".py", ".md", ".docx", ".pdf"]
+min_words: 300
+max_words: 1200
+
+scenario: >
+  Your SaaS business experienced unexpected subscription churn last quarter. 
+  A junior analyst developed a Jupyter Notebook to segment customer churn by contract tier, monthly spend, 
+  and support ticket volume. However, the notebook has code hygiene issues, dropped missing values improperly, 
+  and calculates average retention rates incorrectly.
+  
+  Deliverable:
+  Submit a two-part deliverable:
+  1. A clean, reproducible Python script or Jupyter Notebook that loads `customers.csv` and `support_tickets.csv`, 
+     calculates true weighted retention rates across tiers, and outputs key retention statistics.
+  2. A 1-to-2 page Executive Decision Brief summarizing:
+     - The business findings: which tier is leaking revenue and why.
+     - The technical audit: what bugs and assumptions were corrected in the analyst's original code.
+     - Strategic recommendations for the Executive Leadership Team to reduce high-spend customer churn.
+
+required_sections:
+  - "Executive Summary & Revenue at Risk"
+  - "Cohort Churn Analysis by Subscription Tier"
+  - "Technical Audit: Python & pandas Debugging Log"
+  - "Root Cause Analysis: Support Ticket Latency vs Churn"
+  - "Executive Retention Strategy & Next Steps"
+
+required_keywords:
+  - "retention"
+  - "churn rate"
+  - "DataFrame"
+  - "weighted"
+  - "reproducible"
+
+rubric:
+  criteria:
+    - id: "decision_clarity"
+      name: "Strategic Clarity & Decision Focus"
+      weight: 25
+      pass_threshold: 20
+      description: "Does the brief clearly identify which customer segment is churning, why it matters commercially, and what concrete steps leadership should take?"
+    - id: "technical_soundness"
+      name: "Python Code Soundness & Hygiene"
+      weight: 25
+      pass_threshold: 20
+      description: "Is the data transformation reproducible, handling missing values safely without silent drops, and correctly computing weighted ratios?"
+    - id: "analytical_depth"
+      name: "Analytical Rigor & Cross-Functional Synthesis"
+      weight: 25
+      pass_threshold: 20
+      description: "Does the analysis correlate customer spend with operational drivers (e.g. support ticket resolution times) to diagnose root causes?"
+    - id: "executive_readability"
+      name: "Executive Tone & Visual Layout"
+      weight: 25
+      pass_threshold: 20
+      description: "Is the presentation structured concisely with high-signal tables, clear headings, and C-suite ready language?"

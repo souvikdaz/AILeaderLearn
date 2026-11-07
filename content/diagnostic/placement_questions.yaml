@@ -1,0 +1,395 @@
+diagnostic_version: "2.0"
+title: "Data & AI Leadership Placement Diagnostic"
+instructions: >
+  This diagnostic evaluates your readiness across five core pillars: Excel to Data Architecture, 
+  SQL Query Reading, Python & DataFrames, AI/LLM Concepts, and Analytics Leadership Scenarios.
+  Your results determine your custom starting module and qualify you to test out of foundational concepts.
+
+questions:
+  # ==========================================
+  # CATEGORY 1: EXCEL & REPORTING TO DATA FLOW (4 Questions)
+  # ==========================================
+  - id: "diag_excel_1"
+    category: "excel_reporting"
+    pillar: "Data Architecture Bridge"
+    prompt: >
+      In Excel, your team maintains a 250,000-row workbook with 40 VLOOKUP formulas per row linking 
+      to three separate workbooks on SharePoint. Opening the file takes 12 minutes, and formulas frequently return #N/A. 
+      As the incoming analytics leader, how do you explain the architectural solution to the CFO?
+    options:
+      - "We will upgrade everyone to 64-bit Excel with 32GB RAM laptops to handle heavier calculation threads."
+      - "We will transition these sources into an automated ELT pipeline and a centralized data warehouse, replacing fragile workbook links with a governed semantic model."
+      - "We will convert all VLOOKUP formulas to INDEX-MATCH which recalculates 30% faster."
+      - "We will split the workbook into 12 monthly sheets and consolidate them manually each quarter."
+    correct_index: 1
+    explanation: >
+      Excel is a decision-support and analysis tool, not an enterprise storage or ingestion engine. 
+      Bridging VLOOKUP to an automated ELT pipeline into a data warehouse eliminates manual latency, protects data integrity, and scales reliably.
+
+  - id: "diag_excel_2"
+    category: "excel_reporting"
+    pillar: "Data Modeling"
+    prompt: >
+      A senior MIS manager builds an Excel Pivot Table using a single flat sheet of 80 columns with repeated customer addresses and vendor names. 
+      In modern database architecture, what is the primary risk of relying on flat denormalized tables for recurring transactional reporting?
+    options:
+      - "Denormalized tables prevent Excel from creating line charts."
+      - "Update anomalies and duplication: when an address changes, updating only some rows causes contradictory reports and silent metric inflation."
+      - "Flat tables cannot be exported to CSV or PDF."
+      - "Denormalized tables require Python to run even basic sums."
+    correct_index: 1
+    explanation: >
+      Data redundancy in wide flat tables leads to update anomalies where conflicting versions of an entity exist simultaneously, destroying trust in executive metrics.
+
+  - id: "diag_excel_3"
+    category: "excel_reporting"
+    pillar: "Semantic Layer"
+    prompt: >
+      Your commercial team defines 'Revenue' as invoiced gross billings in their Excel pack, while Finance defines it as GAAP recognized revenue net of returns. 
+      Both teams present differing monthly figures to the CEO. What governance mechanism directly solves this?
+    options:
+      - "Have both teams average their two numbers to create an agreed compromise metric."
+      - "Mandate that only Finance is allowed to touch numbers in the company."
+      - "Establish an enterprise metric catalog with an agreed single semantic model definition enforced across all BI tools and data marts."
+      - "Ask the engineering team to build two separate dashboards so each team keeps their preferred definition."
+    correct_index: 2
+    explanation: >
+      A semantic layer standardizes metric logic once in code or a BI model, guaranteeing that all downstream consumers see the exact same governed definition.
+
+  - id: "diag_excel_4"
+    category: "excel_reporting"
+    pillar: "Automation"
+    prompt: >
+      Every Monday morning, two analysts spend 4 hours copying CSV exports from three SaaS tools into Excel to produce the weekly trading pack. 
+      What is the strongest business case for automating this via a modern data stack?
+    options:
+      - "It allows the company to eliminate the two analyst jobs immediately."
+      - "It recovers 400+ annual high-value hours for proactive commercial analysis, eliminates copy-paste transposition risk, and delivers insights by 8:00 AM instead of 1:00 PM."
+      - "SaaS vendors offer a 50% discount if CSV downloads are replaced by webhooks."
+      - "Executive presentations look more modern when generated directly in Python."
+    correct_index: 1
+    explanation: >
+      Automation in analytics leadership is justified by risk mitigation, speed-to-insight, and shifting analyst capacity from manual compilation to strategic inquiry.
+
+  # ==========================================
+  # CATEGORY 2: SQL READING & AUDITING (5 Questions)
+  # ==========================================
+  - id: "diag_sql_1"
+    category: "sql_reading"
+    pillar: "SQL Query Reading"
+    is_code_reading: true
+    snippet: |
+      SELECT 
+          c.region,
+          COUNT(DISTINCT o.order_id) AS total_orders,
+          SUM(o.amount) AS total_revenue
+      FROM customers c
+      INNER JOIN orders o ON c.customer_id = o.customer_id
+      WHERE o.order_date >= '2024-01-01'
+      GROUP BY c.region
+      HAVING SUM(o.amount) > 100000;
+    prompt: >
+      Review the SQL query above submitted by an analyst for regional Q1 revenue. 
+      What will this query return, and what happens to customers who placed zero orders in 2024?
+    options:
+      - "It returns all regions with orders, and includes customers without orders showing zero revenue."
+      - "It returns only regions whose 2024 order revenue exceeds $100,000; customers with zero orders are excluded due to the INNER JOIN and WHERE clause."
+      - "It throws a syntax error because HAVING cannot be used with SUM."
+      - "It returns every customer row without any regional grouping."
+    correct_index: 1
+    explanation: >
+      An INNER JOIN requires matches on both sides, so inactive customers are omitted. Furthermore, the HAVING clause restricts output strictly to regions exceeding $100k.
+
+  - id: "diag_sql_2"
+    category: "sql_reading"
+    pillar: "Query Auditing"
+    is_code_reading: true
+    snippet: |
+      -- Analyst query to find customer total spend and active discounts
+      SELECT 
+          c.customer_id,
+          c.customer_name,
+          SUM(o.amount) AS total_spend,
+          COUNT(d.discount_id) AS discounts_applied
+      FROM customers c
+      LEFT JOIN orders o ON c.customer_id = o.customer_id
+      LEFT JOIN discounts d ON c.customer_id = d.customer_id
+      GROUP BY c.customer_id, c.customer_name;
+    prompt: >
+      A junior analyst runs this query. If Customer C101 has 3 orders and 2 discounts on record, 
+      what critical calculation trap will occur in the total_spend calculation?
+    options:
+      - "The query will execute normally and compute the exact spend with no error."
+      - "Cartesian product duplication: joining two independent one-to-many tables causes 6 joined rows (3 x 2), artificially doubling the total_spend."
+      - "The discounts table will overwrite the orders table, returning NULL for total_spend."
+      - "The SQL engine will automatically deduplicate the rows before computing SUM."
+    correct_index: 1
+    explanation: >
+      Joining multiple one-to-many child tables in a single query creates a Cartesian fan-out, multiplying rows and heavily inflating sums. Leaders must spot this query smell immediately.
+
+  - id: "diag_sql_3"
+    category: "sql_reading"
+    pillar: "SQL Joins"
+    prompt: >
+      You want a report of all registered enterprise accounts and their recent churn status, 
+      including accounts that have never generated an invoice. Which join type is mandatory between the accounts table (left) and the invoices table (right)?
+    options:
+      - "INNER JOIN"
+      - "LEFT JOIN"
+      - "CROSS JOIN"
+      - "FULL OUTER JOIN with WHERE invoices.id IS NULL"
+    correct_index: 1
+    explanation: >
+      A LEFT JOIN retains all records from the left table (accounts), matching with invoice records where available and leaving NULLs for accounts without invoices.
+
+  - id: "diag_sql_4"
+    category: "sql_reading"
+    pillar: "Aggregations"
+    prompt: >
+      What is the key functional difference between a WHERE clause and a HAVING clause in SQL?
+    options:
+      - "WHERE is used for text columns; HAVING is used for numeric columns."
+      - "WHERE filters individual rows before aggregation occurs; HAVING filters grouped summary records after aggregation."
+      - "HAVING is faster than WHERE because it indexes the results in temporary cache."
+      - "WHERE can only be used in subqueries; HAVING is used in the main query."
+    correct_index: 1
+    explanation: >
+      WHERE filters raw input rows prior to GROUP BY. HAVING evaluates conditions on aggregated results (e.g. SUM, AVG, COUNT) after grouping.
+
+  - id: "diag_sql_5"
+    category: "sql_reading"
+    pillar: "Window Functions"
+    is_code_reading: true
+    snippet: |
+      SELECT 
+          order_id, 
+          customer_id, 
+          order_date, 
+          amount,
+          ROW_NUMBER() OVER(PARTITION BY customer_id ORDER BY order_date DESC) as order_rank
+      FROM orders;
+    prompt: >
+      Looking at this query snippet, what does the column 'order_rank' represent for each customer?
+    options:
+      - "The total number of orders the customer has ever placed."
+      - "A ranking where 1 is the customer's most recent order, 2 is their second most recent, and so on."
+      - "The monetary size ranking from largest order to smallest order."
+      - "A random unique identifier assigned by the database engine."
+    correct_index: 1
+    explanation: >
+      `PARTITION BY customer_id ORDER BY order_date DESC` restarts numbering at 1 for each customer, ordered from newest to oldest.
+
+  # ==========================================
+  # CATEGORY 3: PYTHON & PANDAS FOR LEADERS (4 Questions)
+  # ==========================================
+  - id: "diag_python_1"
+    category: "python_reading"
+    pillar: "Notebook Execution"
+    prompt: >
+      An analyst presents a Jupyter Notebook showing 95% model accuracy. However, looking at the cell numbers on the left, 
+      you notice: In [1], In [14], In [3], In [22]. What leadership risk does out-of-order execution introduce?
+    options:
+      - "Out-of-order execution is best practice because it saves GPU compute memory."
+      - "Hidden state: variables in memory reflect an unrepeatable execution sequence; running the notebook top-to-bottom on fresh data will likely fail or yield different numbers."
+      - "Jupyter automatically re-orders cells chronologically before compiling bytecode."
+      - "The notebook cannot be exported to PDF unless cells are strictly consecutive."
+    correct_index: 1
+    explanation: >
+      Notebooks maintain in-memory state. Out-of-order execution masks data leakage, mutated variables, and non-reproducible calculations. A leader must demand 'Restart & Run All Cells'.
+
+  - id: "diag_python_2"
+    category: "python_reading"
+    pillar: "pandas Reading"
+    is_code_reading: true
+    snippet: |
+      import pandas as pd
+      df = pd.read_csv('monthly_churn.csv')
+      # Step 1: Filter active contracts
+      active_df = df[df['status'] == 'Active']
+      # Step 2: Calculate average tenure
+      avg_tenure = active_df['tenure_months'].mean()
+      print(f"Average Active Tenure: {avg_tenure}")
+    prompt: >
+      In Excel terms, which combination of features does Step 1 and Step 2 directly mirror?
+    options:
+      - "Excel Solver and Goal Seek."
+      - "Applying an AutoFilter on column 'status' to 'Active', followed by an AVERAGE formula on the filtered 'tenure_months' column."
+      - "A nested VLOOKUP combined with an IFERROR statement."
+      - "A conditional formatting highlight rule for tenure above median."
+    correct_index: 1
+    explanation: >
+      Boolean masking in pandas (`df[df['status'] == 'Active']`) is the programmatic equivalent of filtering rows, followed by a summary aggregation.
+
+  - id: "diag_python_3"
+    category: "python_reading"
+    pillar: "Debugging with AI"
+    is_code_reading: true
+    snippet: |
+      merged_df = pd.merge(customers, orders, on='customer_id', how='left')
+      churn_rate = merged_df['churned'].sum() / len(merged_df)
+    prompt: >
+      Your analyst asked an AI assistant to calculate the customer churn rate. 
+      The code above merged customers with multiple orders per customer. What subtle flaw did the AI generate?
+    options:
+      - "The code generates a fatal syntax error because how='left' is invalid."
+      - "The calculation computes churn rate per order, not per customer: high-frequency buyers are overweighted in the denominator."
+      - "The code drops all churned customers automatically."
+      - "The sum() function cannot be applied to boolean flags in pandas."
+    correct_index: 1
+    explanation: >
+      Merging customers with orders produces one row per order. Calculating churn over the merged table measures churn per transaction, severely biasing the business metric.
+
+  - id: "diag_python_4"
+    category: "python_reading"
+    pillar: "Handling Missing Values"
+    prompt: >
+      When auditing an analyst's pandas script for executive churn reporting, you see `df.dropna(inplace=True)` at the top of the script. 
+      Why should a data leader challenge this immediately?
+    options:
+      - "Because inplace=True is deprecated in modern python."
+      - "Silent row deletion: if an optional column (e.g. secondary email) has 40% missing values, dropna() silently wipes out 40% of all customer records from the analysis."
+      - "Because dropna() changes all numeric columns into strings."
+      - "Because missing values must always be filled with the number zero."
+    correct_index: 1
+    explanation: >
+      Blindly dropping rows with any missing value often deletes a huge portion of the dataset without warning, corrupting totals and sample distributions.
+
+  # ==========================================
+  # CATEGORY 4: AI & LLM CONCEPTS (4 Questions)
+  # ==========================================
+  - id: "diag_ai_1"
+    category: "ai_concepts"
+    pillar: "LLM Fundamentals"
+    prompt: >
+      A vendor claims their proprietary generative AI model 'guarantees 100% zero-hallucination accuracy on all internal enterprise documentation without verification.' 
+      As a technical leader, how do you evaluate this claim?
+    options:
+      - "Accept the claim because proprietary enterprise models eliminate token probability distributions."
+      - "Reject the claim as marketing hype: LLMs are probabilistic token predictors; retrieval-augmented generation (RAG) and guardrail benchmarks can minimize errors, but cannot mathematically guarantee zero hallucination."
+      - "Accept the claim only if they run the model on 8-bit quantized GPUs."
+      - "Ask if they can increase the temperature parameter to 1.5 to guarantee deterministic facts."
+    correct_index: 1
+    explanation: >
+      LLMs generate text probabilistically based on weights and context. No architecture can mathematically guarantee 100% factual accuracy without deterministic validation and human-in-the-loop oversight.
+
+  - id: "diag_ai_2"
+    category: "ai_concepts"
+    pillar: "RAG Architecture"
+    prompt: >
+      What is the primary operational advantage of Retrieval-Augmented Generation (RAG) over full model fine-tuning for internal company knowledge assistants?
+    options:
+      - "RAG requires zero vector embeddings and zero database storage."
+      - "RAG grounds the LLM in up-to-date company documents without costly retraining, provides auditable source citations, and allows instant document access revocation."
+      - "Fine-tuning is always free, whereas RAG costs $10 per query."
+      - "RAG converts unstructured documents into Excel VBA macros automatically."
+    correct_index: 1
+    explanation: >
+      RAG retrieves relevant chunks at query time from a managed vector store, providing verifiable source links, dynamic knowledge updates, and permission enforcement without retraining the foundation model.
+
+  - id: "diag_ai_3"
+    category: "ai_concepts"
+    pillar: "Model Evaluation"
+    prompt: >
+      Your data science team builds an AI model to detect high-value customers about to churn. 
+      In this business context, which outcome is typically more expensive: a False Positive (offering an unnecessary retention perk) or a False Negative (losing a $100k account without warning)?
+    options:
+      - "False Positives are always more dangerous than False Negatives in commercial business."
+      - "False Negatives: the cost of an unprevented customer churn ($100k lost LTV) dwarfs the nominal cost of an outreach email or retention discount."
+      - "Both errors have identical financial impact."
+      - "Model accuracy is the only metric that matters, regardless of error distribution."
+    correct_index: 1
+    explanation: >
+      In high-stakes churn and fraud detection, False Negatives (missed detection) carry severe asymmetric costs. Leaders must optimize for Recall over simple Accuracy.
+
+  - id: "diag_ai_4"
+    category: "ai_concepts"
+    pillar: "AI Cost & Latency"
+    prompt: >
+      When architecting an AI customer support summarizer processing 500,000 tickets per month, 
+      what is the primary trade-off between using a top-tier frontier model (e.g. GPT-4o / Claude 3.5 Sonnet) vs a smaller specialized SLM (e.g. Llama-3-8B / Mistral-Small)?
+    options:
+      - "Smaller models have higher API token costs than frontier models."
+      - "Frontier models offer superior complex reasoning but cost 10x-30x more per token and have higher latency; smaller fine-tuned models handle structured summarization at a fraction of cost and sub-second speed."
+      - "Frontier models can only run inside Excel."
+      - "Smaller models cannot process JSON data."
+    correct_index: 1
+    explanation: >
+      Unit economics and latency dictate model choice in production. For routine summarization or classification at scale, smaller models deliver high ROI with lower latency.
+
+  # ==========================================
+  # CATEGORY 5: DATA & AI LEADERSHIP SCENARIOS (5 Questions)
+  # ==========================================
+  - id: "diag_lead_1"
+    category: "leadership_scenarios"
+    pillar: "Intake & Prioritization"
+    prompt: >
+      Your team is overwhelmed by 45 ad-hoc report requests every week from marketing, sales, and operations. 
+      Analysts are burnt out and strategic projects are stalled. What operating model change should you institute first?
+    options:
+      - "Tell the CEO that your team will no longer answer emails from non-executives."
+      - "Implement an intake framework with an executive prioritization scoring rubric (business value, strategic alignment, complexity) and route recurring queries to self-serve dashboards."
+      - "Instruct analysts to work overtime on weekends to clear the ad-hoc queue."
+      - "Hire 10 junior contractors immediately without assessing the underlying request patterns."
+    correct_index: 1
+    explanation: >
+      A data leader must replace chaotic ad-hoc channels (Slack/email) with structured intake, transparent scoring, and automated self-serve layers.
+
+  - id: "diag_lead_2"
+    category: "leadership_scenarios"
+    pillar: "Stakeholder Management"
+    prompt: >
+      The Head of Sales insists on using an unvetted third-party AI prospecting tool that scrapes LinkedIn and sends emails autonomously, 
+      bypassing corporate data governance. How do you handle this constructively?
+    options:
+      - "Send an angry company-wide email exposing the Head of Sales for violating rules."
+      - "Partner with Sales and InfoSec to run a controlled 30-day proof-of-concept with clear data privacy safeguards, compliance boundaries, and defined conversion KPIs."
+      - "Silently block the tool's domain on the corporate firewall without explanation."
+      - "Approve the tool immediately without review to avoid conflict with commercial leadership."
+    correct_index: 1
+    explanation: >
+      Effective leaders avoid being perceived as the 'department of NO'. Instead, they create safe sandboxes and compliance guardrails while aligning to commercial velocity.
+
+  - id: "diag_lead_3"
+    category: "leadership_scenarios"
+    pillar: "Build vs Buy"
+    prompt: >
+      Your data science team proposes spending 9 months and $450,000 building a custom customer segmentation engine from scratch in PyTorch. 
+      A mature enterprise SaaS tool solves 85% of their use cases for $35,000/year and deploys in 2 weeks. As Head of Analytics, what is your decision framework?
+    options:
+      - "Approve the custom build because in-house code is always superior to external software."
+      - "Direct the team to adopt the SaaS solution for immediate time-to-value, reserving engineering capital for core proprietary IP that provides genuine competitive differentiation."
+      - "Decline both options and continue doing segmentation manually in Excel."
+      - "Fire the data science team for proposing a custom build."
+    correct_index: 1
+    explanation: >
+      Build vs. Buy decisions hinge on competitive advantage. Off-the-shelf software should be leveraged for commodity operations, concentrating engineering talent on core business differentiation.
+
+  - id: "diag_lead_4"
+    category: "leadership_scenarios"
+    pillar: "Team Structure"
+    prompt: >
+      You are structuring a 15-person data team for a fast-growing scaleup. The company is struggling between a fully centralized team (slow to respond to domain nuances) 
+      and a fully decentralized team (fragmented definitions, duplicated work, zero governance). Which organizational model balances both?
+    options:
+      - "A pure contractor model where all analytics is outsourced to an offshore agency."
+      - "A hybrid 'Hub-and-Spoke' (or Federated) model: central platform & governance hub setting standards and data infrastructure, with embedded analysts in business units driving domain impact."
+      - "Total decentralization with no shared tools or communication."
+      - "Rotating all analysts to a different department every two weeks."
+    correct_index: 1
+    explanation: >
+      The Hub-and-Spoke model combines the rigor and economies of scale of a central platform team with the domain context and agility of embedded business analysts.
+
+  - id: "diag_lead_5"
+    category: "leadership_scenarios"
+    pillar: "Executive Storytelling"
+    prompt: >
+      You are presenting the quarterly data strategy to the Executive Board. You have a 45-slide deck detailing database schemas, Kafka streaming clusters, and neural network loss curves. 
+      What should you do before the meeting?
+    options:
+      - "Add 20 more slides of Python code to prove your technical depth."
+      - "Condense the deck into a 5-slide executive briefing focused on business outcomes: revenue uplift, risk reduction, operational cost savings, and 3 critical decisions requiring Board sign-off."
+      - "Read every technical slide verbatim to ensure the Board understands the engineering complexity."
+      - "Cancel the meeting and send a GitHub repository link instead."
+    correct_index: 1
+    explanation: >
+      Executives care about decisions, capital allocation, risk, and commercial velocity. Technical architecture belongs in an appendix; the executive narrative must focus on business value.

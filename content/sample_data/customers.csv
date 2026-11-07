@@ -1,0 +1,11 @@
+customer_id,customer_name,plan,signup_date,industry,monthly_spend,is_active,churn_date
+C101,Acme Logistics,Enterprise,2023-01-15,Logistics,4500,1,
+C102,Beta Retail,Professional,2023-03-22,Retail,1800,1,
+C103,Gamma FinTech,Enterprise,2023-05-10,Finance,7200,0,2024-02-14
+C104,Delta Healthcare,Enterprise,2023-06-01,Healthcare,6100,1,
+C105,Epsilon Media,Starter,2023-08-19,Media,450,0,2023-11-30
+C106,Zeta Manufacturing,Professional,2023-09-04,Manufacturing,2200,1,
+C107,Eta SaaS,Enterprise,2023-11-12,Technology,5800,1,
+C108,Theta Edu,Starter,2024-01-08,Education,600,1,
+C109,Iota Travel,Professional,2024-02-14,Hospitality,2100,0,2024-06-01
+C110,Kappa Energy,Enterprise,2024-03-01,Energy,8900,1,

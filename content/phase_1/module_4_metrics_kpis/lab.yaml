@@ -1,0 +1,53 @@
+lab_id: "m4_lab"
+module_id: "module_4"
+title: "Lab 4: KPI Tree Reconciliation & Unit Economics Analysis"
+type: "sql"
+runner: "duckdb"
+database_tables:
+  kpi_actuals: "content/sample_data/kpi_actuals.csv"
+
+brief: >
+  Your executive leadership team monitors monthly SaaS unit economics. 
+  However, the current dashboard query does not calculate the LTV to CAC ratio 
+  and calculates average churn rate without rounding, making the executive trend table difficult to interpret.
+  
+  Your task:
+  1. Query `kpi_actuals`.
+  2. Select `month`, `mrr`, `cac`, `ltv`, and `gross_churn_pct`.
+  3. Calculate the unit economic ratio: `ROUND(ltv / cac, 2) AS ltv_cac_ratio`.
+  4. Convert `gross_churn_pct` to a formatted percentage: `ROUND(gross_churn_pct * 100.0, 1) AS churn_pct`.
+  5. Filter for months where `ltv_cac_ratio >= 7.0` (healthy enterprise benchmark).
+  6. Order by `month ASC`.
+  7. Pass the 'explain this line' check on the LTV:CAC health ratio.
+
+starter_code: |
+  -- Calculate unit economic KPIs from kpi_actuals:
+  SELECT 
+      month,
+      mrr,
+      cac,
+      ltv,
+      gross_churn_pct
+  FROM kpi_actuals;
+
+expected_query: |
+  SELECT 
+      month,
+      mrr,
+      cac,
+      ltv,
+      ROUND(gross_churn_pct * 100.0, 1) AS churn_pct,
+      ROUND(ltv / cac, 2) AS ltv_cac_ratio
+  FROM kpi_actuals
+  WHERE (ltv / cac) >= 7.0
+  ORDER BY month ASC;
+
+expected_columns: ["month", "mrr", "cac", "ltv", "churn_pct", "ltv_cac_ratio"]
+expected_min_rows: 4
+
+explain_line_check:
+  line_number: 6
+  target_line: "ROUND(ltv / cac, 2) AS ltv_cac_ratio"
+  prompt: "Explain why the LTV:CAC ratio is a premier executive metric and what a ratio below 3.0 indicates to a leadership team."
+  rubric_keywords: ["ltv", "cac", "ratio", "acquisition", "sustainable", "burn", "unprofitable", "cost"]
+  sample_good_answer: "LTV:CAC measures the return on customer acquisition spend. A ratio above 3.0 indicates healthy unit economics; a ratio below 3.0 signals unsustainable acquisition burn where you spend more to acquire customers than they return in lifetime gross margin."

@@ -1,0 +1,54 @@
+phase_id: "phase_4"
+phase_name: "Phase 4: Executive Readiness"
+day_range: [76, 90]
+duration_days: 15
+objective: "Master executive storytelling, drive organizational adoption, ace leadership interviews, and develop your 90-day transition roadmap."
+
+modules:
+  - id: "module_13"
+    code: "M13"
+    title: "Executive Storytelling & Stakeholder Influence"
+    day_range: [76, 80]
+    skills: ["Stakeholder management and executive storytelling"]
+    objectives:
+      - "Structure C-suite presentations using the Pyramid Principle and Situation-Complication-Resolution (SCR) framework."
+      - "Translate technical complexity (loss curves, vector databases, ETL pipelines) into executive financial language."
+      - "Navigate political resistance and bridge conflicting cross-functional stakeholder agendas."
+    lab:
+      title: "Lab 13: Executive 5-Slide Narrative Deck Redesign"
+      brief: "Transform a 35-slide technical engineering deck into a high-impact 5-slide C-suite decision brief."
+    project_brief:
+      title: "Board-Level AI Strategy Presentation"
+      deliverable: "A 5-to-7 slide executive presentation and speaking script justifying a major strategic data initiative."
+
+  - id: "module_14"
+    code: "M14"
+    title: "Change Management & Analytics Adoption"
+    day_range: [81, 85]
+    skills: ["Change management and adoption"]
+    objectives:
+      - "Overcome organizational resistance to AI tools and automated reporting workflows."
+      - "Establish an internal Analytics Champions network and self-serve training curriculum."
+      - "Track dashboard usage analytics, purge zombie reports, and measure cultural adoption."
+    lab:
+      title: "Lab 14: Dashboard Adoption Telemetry & Zombie Report Purge Audit"
+      brief: "Query usage logs in DuckDB to identify abandoned executive dashboards and model decommissioning savings."
+    project_brief:
+      title: "Enterprise AI Change Management & Adoption Playbook"
+      deliverable: "A change management plan detailing communication cadence, department training, and adoption milestone KPIs."
+
+  - id: "module_15"
+    code: "M15"
+    title: "Interview Mastery & Career Positioning"
+    day_range: [86, 90]
+    skills: ["Hiring and leading AI, ML, and analytics teams", "Stakeholder management and executive storytelling"]
+    objectives:
+      - "Position prior MIS and reporting leadership alongside modern data architecture and AI judgment without fabricating credentials."
+      - "Excel in executive interview formats (STAR behavioral, technical judgment, board case study, strategy pitch)."
+      - "Formulate an actionable 90-day transition plan for your target Head of Analytics or AI Lead role."
+    lab:
+      title: "Lab 15: 2-Minute Executive Strategy Pitch & Audio Delivery Drill"
+      brief: "Record and refine your 2-minute elevator response to: 'Walk me through your Data & AI strategy for our company.'"
+    project_brief:
+      title: "Capstone Deliverable: The 90-Day Executive Leadership Onboarding Plan"
+      deliverable: "A comprehensive 30-60-90 day strategic roadmap detailing stakeholder discovery, quick wins, operating model setup, and long-term vision."

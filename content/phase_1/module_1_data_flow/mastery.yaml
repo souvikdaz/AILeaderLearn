@@ -1,0 +1,73 @@
+module_id: "module_1"
+title: "Module 1 Mastery Check: Enterprise Data Flow & Architecture"
+pass_threshold: 80.0
+max_attempts: 3
+
+questions:
+  - id: "m1_mc_1"
+    type: "multiple_choice"
+    prompt: "Why does modern enterprise architecture favor ELT (Extract, Load, Transform) over legacy ETL (Extract, Transform, Load)?"
+    options:
+      - "ELT uses Excel formulas rather than SQL."
+      - "ELT preserves unmodified raw data in the cloud warehouse, allowing business logic and KPI definitions to be recomputed historically without re-extracting data."
+      - "Legacy ETL is illegal under GDPR regulations."
+      - "ELT eliminates the need for software engineering teams."
+    correct_index: 1
+    points: 20
+    concept: "ELT vs ETL Architecture"
+
+  - id: "m1_mc_2"
+    type: "multiple_choice"
+    prompt: "An operational OLTP database powers customer checkouts. What happens if your BI tool connects directly to this database to run real-time annual executive aggregations?"
+    options:
+      - "The queries automatically run 10x faster than in Snowflake."
+      - "Long-running analytical queries lock database tables and consume memory, degrading checkout performance or crashing customer transactions."
+      - "The database automatically converts all numbers into currency format."
+      - "Nothing, as all relational databases handle analytical and transactional loads identically."
+    correct_index: 1
+    points: 20
+    concept: "OLTP vs OLAP Workload Isolation"
+
+  - id: "m1_mc_3"
+    type: "multiple_choice"
+    prompt: "What is the primary role of a 'Data Contract' between software engineers and analytics teams?"
+    options:
+      - "It establishes an agreed schema, data types, and SLA so upstream application changes do not silently break downstream reporting."
+      - "It sets the hourly consulting rate for contract data engineers."
+      - "It restricts data access strictly to users with a Master's degree."
+      - "It requires all code to be written in C++."
+    correct_index: 20
+    points: 20
+    concept: "Data Contracts & Schema Drift"
+
+  - id: "m1_mc_code_reading"
+    type: "code_reading"
+    prompt: "Review the query below. If customer C104 exists in 'customers' but has zero matching records in 'orders', what does this query return for C104's order_count?"
+    code_snippet: |
+      SELECT 
+          c.customer_id,
+          c.customer_name,
+          COUNT(o.order_id) AS order_count
+      FROM customers c
+      LEFT JOIN orders o ON c.customer_id = o.customer_id
+      GROUP BY c.customer_id, c.customer_name;
+    options:
+      - "It returns NULL for order_count."
+      - "It returns 0 for order_count because COUNT(o.order_id) ignores NULL values in the joined column."
+      - "It excludes customer C104 completely from the output."
+      - "It throws a syntax error because LEFT JOIN cannot be used with GROUP BY."
+    correct_index: 1
+    points: 20
+    concept: "Relational Null Aggregations"
+
+  - id: "m1_mc_executive"
+    type: "executive_explanation"
+    prompt: "Explain to a non-technical Chief Operating Officer (COO) why your team cannot simply connect Power BI directly to the production Postgres database to get 'instant real-time' inventory reports."
+    evaluation_criteria:
+      - "Mentions system performance or risk of crashing live customer orders"
+      - "Explains the difference between cash register (OLTP) and analytical warehouse (OLAP)"
+      - "Proposes a safe alternative (e.g. near real-time replica or 15-minute warehouse sync)"
+    sample_answer: >
+      Connecting our dashboard directly to the live production database is like conducting an annual warehouse inventory audit in the middle of a Black Friday checkout line—it blocks cashiers and freezes customer purchases. Instead, we replicate data every 15 minutes into our analytical warehouse, giving you near real-time inventory visibility without risking customer checkout outages.
+    points: 20
+    concept: "Executive Communication of Technical Risk"

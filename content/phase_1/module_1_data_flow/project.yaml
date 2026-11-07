@@ -1,0 +1,55 @@
+project_id: "m1_project"
+module_id: "module_1"
+title: "Project 1: Executive Brief: Enterprise Data Architecture & Flow Bottleneck Audit"
+phase_id: "phase_1"
+allowed_extensions: [".md", ".docx", ".pdf", ".txt"]
+min_words: 300
+max_words: 1200
+
+scenario: >
+  You are the newly appointed Head of Analytics at OmniRetail, an omnichannel retailer generating $180M in revenue. 
+  Executive reporting currently relies on four disparate systems: Shopify (web sales), Oracle ERP (in-store POS & inventory), 
+  Salesforce (customer accounts), and Google Sheets (marketing spend). 
+  Every Monday morning, five analysts spend four hours manually copying data into an Excel master pack. 
+  Last week, an upstream software patch renamed 'store_id' to 'pos_terminal_id', causing the Monday board report to display 
+  an erroneous 42% revenue decline, alarming the Board of Directors.
+  
+  Write a 1-to-2 page Executive Brief to the CEO and COO diagnosing the root causes, explaining the architectural failure in plain English, 
+  and proposing a phased transition to an automated ELT architecture with data contracts and a governed warehouse.
+
+required_sections:
+  - "Executive Summary"
+  - "Root Cause Analysis of the Monday Incident"
+  - "Architectural Transformation: From Fragile MIS to Modern ELT"
+  - "Data Contracts & Quality Safeguards"
+  - "Implementation Roadmap & Commercial ROI"
+
+required_keywords:
+  - "ELT"
+  - "data contract"
+  - "lineage"
+  - "single source of truth"
+  - "warehouse"
+
+rubric:
+  criteria:
+    - id: "decision_clarity"
+      name: "Clarity of the Decision & Executive Focus"
+      weight: 25
+      pass_threshold: 20
+      description: "Does the brief state unambiguous recommendations, timeline, and commercial impact without getting bogged down in unnecessary technical jargon?"
+    - id: "technical_accuracy"
+      name: "Technical Reasoning & Architectural Soundness"
+      weight: 25
+      pass_threshold: 20
+      description: "Does the author accurately contrast OLTP vs OLAP, manual ETL vs automated ELT, and correctly apply data contracts?"
+    - id: "risk_awareness"
+      name: "Risk Awareness & Governance Safeguards"
+      weight: 25
+      pass_threshold: 20
+      description: "Does the brief address schema drift, data freshness SLAs, and failure alerting mechanisms?"
+    - id: "executive_readability"
+      name: "Structure, Conciseness & Tone"
+      weight: 25
+      pass_threshold: 20
+      description: "Is the brief structured with executive headings, bulleted takeaways, and concise prose suited for C-suite decision-makers?"

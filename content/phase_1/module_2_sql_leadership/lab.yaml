@@ -1,0 +1,52 @@
+lab_id: "m2_lab"
+module_id: "module_2"
+title: "Lab 2: Fix a Broken SQL Join & Query Audit"
+type: "sql"
+runner: "duckdb"
+database_tables:
+  customers: "content/sample_data/customers.csv"
+  orders: "content/sample_data/orders.csv"
+
+brief: >
+  An analyst was asked by the VP of Sales to report the total sales revenue and unique active customer count per industry.
+  However, the analyst wrote a query that joined orders directly without accounting for refunded orders, 
+  and used COUNT(c.customer_id) instead of COUNT(DISTINCT c.customer_id), producing inflated customer counts.
+  
+  Your task:
+  1. Fix the query to join customers and orders properly.
+  2. Filter out refunded orders (`o.status != 'Refunded'`).
+  3. Correctly count unique customers using `COUNT(DISTINCT c.customer_id)`.
+  4. Aggregate total valid sales using `SUM(o.amount)`.
+  5. Group by `c.industry` and sort by `total_revenue DESC`.
+  6. Pass the 'explain this line' check on the DISTINCT aggregation.
+
+starter_code: |
+  -- Fix this broken executive query:
+  SELECT 
+      c.industry,
+      COUNT(c.customer_id) AS customer_count,
+      SUM(o.amount) AS total_revenue
+  FROM customers c
+  INNER JOIN orders o ON c.customer_id = o.customer_id
+  GROUP BY c.industry;
+
+expected_query: |
+  SELECT 
+      c.industry,
+      COUNT(DISTINCT c.customer_id) AS customer_count,
+      SUM(o.amount) AS total_revenue
+  FROM customers c
+  INNER JOIN orders o ON c.customer_id = o.customer_id
+  WHERE o.status != 'Refunded'
+  GROUP BY c.industry
+  ORDER BY total_revenue DESC;
+
+expected_columns: ["industry", "customer_count", "total_revenue"]
+expected_min_rows: 5
+
+explain_line_check:
+  line_number: 3
+  target_line: "COUNT(DISTINCT c.customer_id) AS customer_count"
+  prompt: "Explain why COUNT(DISTINCT customer_id) is mandatory here rather than COUNT(customer_id) and what error occurs if DISTINCT is omitted."
+  rubric_keywords: ["distinct", "unique", "duplicate", "orders", "multiple", "inflated"]
+  sample_good_answer: "Because customers can have multiple orders, a standard COUNT counts every order row as a new customer. COUNT(DISTINCT) ensures each customer is counted exactly once regardless of order volume."
