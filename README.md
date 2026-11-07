@@ -40,7 +40,7 @@ Copy `.env.example` to `.env`:
 cp .env.example .env
 ```
 Key configuration values in `.env`:
-- `ADMIN_PASSWORD`: Password for the administrative console (default: `leader_admin_2025`).
+- `ADMIN_PASSWORD`: Password for the administrative console (default: `Flound3r2766@00`).
 - `DB_PATH`: SQLite database path (default: `db/aileaderlearn.db`).
 - `GEMINI_API_KEY`: *(Optional)* API key for Google Gemini model calls. If omitted, the application uses an intelligent deterministic leadership tutor engine offline.
 

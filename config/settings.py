@@ -19,7 +19,7 @@ DEFAULT_DB_PATH = DB_DIR / "aileaderlearn.db"
 load_dotenv(PROJECT_ROOT / ".env")
 
 # Settings
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "leader_admin_2025")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "Flound3r2766@00")
 DB_PATH = Path(os.getenv("DB_PATH", str(DEFAULT_DB_PATH)))
 if not DB_PATH.is_absolute():
     DB_PATH = PROJECT_ROOT / DB_PATH
