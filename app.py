@@ -1,7 +1,23 @@
+import sys
+from pathlib import Path
+
+# Ensure repository root is always at the head of sys.path on Streamlit Cloud & local runs
+ROOT_DIR = Path(__file__).resolve().parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+# Handle potential module hot-reloading on Streamlit Cloud
+import importlib
+try:
+    import core.db
+    if not hasattr(core.db, "record_learner_activity"):
+        importlib.reload(core.db)
+except Exception:
+    pass
+
 import streamlit as st
 import json
 from datetime import datetime
-from pathlib import Path
 from config.settings import load_track_config, DB_PATH
 from core.db import init_db, get_all_learners, get_learner, record_learner_activity
 from core.progress_tracker import calculate_learner_metrics
