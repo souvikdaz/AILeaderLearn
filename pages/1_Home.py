@@ -45,7 +45,7 @@ if not is_logged_in:
             st.info("No learner profiles found yet. Please switch to the **'Create New Profile'** tab to get started.")
         else:
             learner_dict = {
-                l["id"]: f"{l['name']} — {l.get('current_role', 'Manager')} ({l.get('email', 'No email registered')})"
+                l["id"]: l["name"]
                 for l in learners
             }
             
@@ -65,21 +65,14 @@ if not is_logged_in:
                     key="login_password_input"
                 )
             
-            # Show preview card of selected profile
+            # Show selected profile confirmation
             selected_l = get_learner(selected_id)
             if selected_l:
-                act_record = next((item for item in learners if item["id"] == selected_id), {})
-                last_act = act_record.get("last_active_date", "Never")
-                passed_mods = act_record.get("passed_modules", 0)
-                learner_email = selected_l.get("email") or "Not registered"
-                
                 st.markdown(
                     f"""
-                    <div style="border: 2px solid #2563EB; border-radius: 8px; padding: 16px; margin: 12px 0; background: #F8FAFC;">
+                    <div style="border: 2px solid #2563EB; border-radius: 8px; padding: 12px 16px; margin: 10px 0; background: #F8FAFC;">
                         <h4 style="margin: 0; color: #1E293B;">👤 {selected_l['name']}</h4>
-                        <p style="margin: 4px 0; color: #475569; font-size: 0.9em;"><strong>Email:</strong> {learner_email} | <strong>Current Role:</strong> {selected_l.get('current_role', 'Manager')}</p>
-                        <p style="margin: 2px 0; color: #475569; font-size: 0.9em;"><strong>Target Leadership Role:</strong> <code style="color: #2563EB;">{selected_l.get('target_level', 'Head of Analytics')}</code></p>
-                        <p style="margin: 2px 0; color: #64748B; font-size: 0.85em;"><strong>Pace:</strong> {selected_l.get('hours_per_week', 10)} hrs/wk | <strong>Passed Modules:</strong> {passed_mods}/12 | <strong>Last Active:</strong> {last_act}</p>
+                        <p style="margin: 4px 0 0 0; color: #64748B; font-size: 0.9em;">Enter your password to access your executive dashboard.</p>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -314,7 +307,7 @@ else:
                     st.info("No other learner profiles registered.")
                 else:
                     opt_map = {
-                        l["id"]: f"{l['name']} ({l.get('email', 'No email')}) - Last Active: {l.get('last_active_date', 'Never')}"
+                        l["id"]: l["name"]
                         for l in other_learners
                     }
                     new_sel_id = st.selectbox("Select Profile to Switch To:", options=list(opt_map.keys()), format_func=lambda x: opt_map.get(x, x))
