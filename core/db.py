@@ -230,7 +230,10 @@ def delete_learner(learner_id: str, db_path: Optional[Path] = None) -> bool:
     ]
     for tbl in tables:
         col = "id" if tbl == "learners" else "learner_id"
-        execute_write(f"DELETE FROM {tbl} WHERE {col} = ?", (learner_id,), db_path=db_path)
+        try:
+            execute_write(f"DELETE FROM {tbl} WHERE {col} = ?", (learner_id,), db_path=db_path)
+        except Exception:
+            pass
         
     # 2. Clean up file submissions on disk
     sub_dir = PROJECT_ROOT / "submissions" / learner_id

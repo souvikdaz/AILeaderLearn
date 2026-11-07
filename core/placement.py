@@ -186,7 +186,15 @@ def has_completed_diagnostic(learner_id: str, db_path: Optional[Path] = None) ->
     """Checks whether the learner has completed and submitted the diagnostic."""
     if not learner_id:
         return False
-    rows = execute_query("SELECT COUNT(*) AS c FROM diagnostic_results WHERE learner_id = ?", (learner_id,), db_path=db_path)
+    try:
+        rows = execute_query("SELECT COUNT(*) AS c FROM diagnostic_results WHERE learner_id = ?", (learner_id,), db_path=db_path)
+    except Exception:
+        from core.db import init_db
+        init_db(db_path)
+        try:
+            rows = execute_query("SELECT COUNT(*) AS c FROM diagnostic_results WHERE learner_id = ?", (learner_id,), db_path=db_path)
+        except Exception:
+            return False
     return bool(rows and rows[0]["c"] > 0)
 
 def save_diagnostic_draft(
@@ -205,13 +213,26 @@ def save_diagnostic_draft(
         draft_answers = excluded.draft_answers,
         updated_at = excluded.updated_at
     """
-    execute_write(sql, (learner_id, json.dumps(clean_answers), now), db_path=db_path)
+    try:
+        execute_write(sql, (learner_id, json.dumps(clean_answers), now), db_path=db_path)
+    except Exception:
+        from core.db import init_db
+        init_db(db_path)
+        execute_write(sql, (learner_id, json.dumps(clean_answers), now), db_path=db_path)
 
 def get_diagnostic_draft(learner_id: str, db_path: Optional[Path] = None) -> Dict[str, int]:
     """Retrieves saved draft answers for a learner."""
     if not learner_id:
         return {}
-    rows = execute_query("SELECT draft_answers FROM diagnostic_drafts WHERE learner_id = ?", (learner_id,), db_path=db_path)
+    try:
+        rows = execute_query("SELECT draft_answers FROM diagnostic_drafts WHERE learner_id = ?", (learner_id,), db_path=db_path)
+    except Exception:
+        from core.db import init_db
+        init_db(db_path)
+        try:
+            rows = execute_query("SELECT draft_answers FROM diagnostic_drafts WHERE learner_id = ?", (learner_id,), db_path=db_path)
+        except Exception:
+            return {}
     if not rows:
         return {}
     try:
@@ -221,4 +242,12 @@ def get_diagnostic_draft(learner_id: str, db_path: Optional[Path] = None) -> Dic
 
 def delete_diagnostic_draft(learner_id: str, db_path: Optional[Path] = None) -> None:
     """Deletes any in-progress diagnostic draft for a learner."""
-    execute_write("DELETE FROM diagnostic_drafts WHERE learner_id = ?", (learner_id,), db_path=db_path)
+    try:
+        execute_write("DELETE FROM diagnostic_drafts WHERE learner_id = ?", (learner_id,), db_path=db_path)
+    except Exception:
+        from core.db import init_db
+        init_db(db_path)
+        try:
+            execute_write("DELETE FROM diagnostic_drafts WHERE learner_id = ?", (learner_id,), db_path=db_path)
+        except Exception:
+            pass

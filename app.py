@@ -10,8 +10,11 @@ if str(ROOT_DIR) not in sys.path:
 import importlib
 try:
     import core.db
-    if not hasattr(core.db, "record_learner_activity"):
-        importlib.reload(core.db)
+    import core.placement
+    import core.auth
+    importlib.reload(core.db)
+    importlib.reload(core.placement)
+    importlib.reload(core.auth)
 except Exception:
     pass
 
@@ -31,13 +34,8 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Initialize database on startup
-@st.cache_resource
-def bootstrap_database():
-    init_db()
-    return True
-
-bootstrap_database()
+# Unconditionally initialize database schema migrations on every run
+init_db()
 
 # Cached track loader
 @st.cache_data
