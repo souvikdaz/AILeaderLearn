@@ -91,3 +91,21 @@ def test_admin_page_renders():
     at.session_state["admin_authenticated"] = True
     at.run()
     assert not at.exception
+
+def test_unauthenticated_dashboard_blocks_access():
+    """Verifies that accessing Dashboard without an active learner session halts with warning."""
+    at = AppTest.from_file(str(PROJECT_ROOT / "pages/3_Dashboard.py"), default_timeout=15)
+    at.session_state["active_learner_id"] = None
+    at.run()
+    assert not at.exception
+    assert len(at.warning) > 0
+
+def test_admin_manage_learner_profiles_tab():
+    """Verifies that 12_Admin.py renders the 'Manage Learner Profiles' view with active telemetry."""
+    at = AppTest.from_file(str(PROJECT_ROOT / "pages/12_Admin.py"), default_timeout=15)
+    at.session_state["admin_authenticated"] = True
+    at.session_state["user_role"] = "admin"
+    at.run()
+    assert not at.exception
+    # Check tabs render
+    assert len(at.tabs) > 0

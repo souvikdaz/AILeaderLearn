@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS learners (
     hours_per_week INTEGER DEFAULT 10,
     start_date TEXT NOT NULL,
     created_at TEXT NOT NULL,
+    last_active_at TEXT,
     status TEXT DEFAULT 'active'
 );
 

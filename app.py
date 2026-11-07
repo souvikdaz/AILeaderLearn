@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 from config.settings import load_track_config, DB_PATH
-from core.db import init_db, get_all_learners, get_learner
+from core.db import init_db, get_all_learners, get_learner, record_learner_activity
 from core.progress_tracker import calculate_learner_metrics
 
 # Streamlit Page Configuration
@@ -29,13 +29,33 @@ def get_cached_track_config():
 
 track = get_cached_track_config()
 
-# Initialize session state for learner and navigation state
-if "active_learner_id" not in st.session_state:
-    learners = get_all_learners()
-    if learners:
-        st.session_state["active_learner_id"] = learners[0]["id"]
+# Initialize session state for authentication and active learner
+if "logged_in" not in st.session_state:
+    # If active_learner_id or admin_authenticated was pre-injected (e.g. tests), respect it
+    if st.session_state.get("active_learner_id"):
+        st.session_state["logged_in"] = True
+        st.session_state["user_role"] = "learner"
+    elif st.session_state.get("admin_authenticated"):
+        st.session_state["logged_in"] = True
+        st.session_state["user_role"] = "admin"
     else:
+        st.session_state["logged_in"] = False
+        st.session_state["user_role"] = None
         st.session_state["active_learner_id"] = None
+
+if "user_role" not in st.session_state:
+    if st.session_state.get("admin_authenticated"):
+        st.session_state["user_role"] = "admin"
+    elif st.session_state.get("active_learner_id"):
+        st.session_state["user_role"] = "learner"
+    else:
+        st.session_state["user_role"] = None
+
+if "active_learner_id" not in st.session_state:
+    st.session_state["active_learner_id"] = None
+
+if "admin_authenticated" not in st.session_state:
+    st.session_state["admin_authenticated"] = (st.session_state.get("user_role") == "admin")
 
 if "current_module_id" not in st.session_state:
     st.session_state["current_module_id"] = "module_1"
@@ -43,30 +63,38 @@ if "current_module_id" not in st.session_state:
 if "current_lesson_id" not in st.session_state:
     st.session_state["current_lesson_id"] = "m1_l1"
 
+# Record learner activity if logged in as learner
+if st.session_state.get("logged_in") and st.session_state.get("active_learner_id"):
+    record_learner_activity(st.session_state["active_learner_id"])
+
 # Render Persistent Global Sidebar
 with st.sidebar:
     st.markdown("### 🎯 **AI Leader Learn**")
     st.caption("90-Day Executive Accelerator for Data & AI Leaders")
     st.markdown("---")
     
-    learners = get_all_learners()
-    learner_options = {l["id"]: f"{l['name']} ({l.get('target_level', 'Leader')})" for l in learners}
-    
-    if learner_options:
-        current_idx = list(learner_options.keys()).index(st.session_state["active_learner_id"]) if st.session_state["active_learner_id"] in learner_options else 0
-        selected_id = st.selectbox(
-            "👤 **Select Active Learner**",
-            options=list(learner_options.keys()),
-            format_func=lambda x: learner_options.get(x, x),
-            index=current_idx,
-            key="sidebar_learner_selector"
-        )
-        if selected_id != st.session_state["active_learner_id"]:
-            st.session_state["active_learner_id"] = selected_id
+    if not st.session_state.get("logged_in"):
+        st.info("🔐 **Sign In Required**\nPlease log in to your learner profile or authenticate as administrator to access your progress.")
+        st.markdown("**Executive Transformation Pillars:**")
+        st.markdown("- Relational SQL & Python Hygiene\n- Metric Trees & Executive Dashboards\n- RAG Architectures & LLM Evaluation\n- Leadership Interview Drills")
+        st.markdown("---")
+        st.caption("🔒 *All progress & submissions auto-saved to SQLite.*")
+    elif st.session_state.get("user_role") == "admin":
+        st.markdown("#### 🛡️ **Administrator Active**")
+        st.caption("Global cohort telemetry & system management")
+        st.markdown("---")
+        if st.button("🚪 Log Out of Admin", key="sidebar_admin_logout_btn", use_container_width=True):
+            st.session_state["logged_in"] = False
+            st.session_state["user_role"] = None
+            st.session_state["admin_authenticated"] = False
+            st.session_state["active_learner_id"] = None
             st.rerun()
-            
-        # Display Learner Profile Summary Card
-        learner_info = get_learner(selected_id)
+        st.markdown("---")
+        st.caption("🔒 *Administrative console protected by environment key.*")
+    else: # Logged in as Learner
+        selected_id = st.session_state.get("active_learner_id")
+        learner_info = get_learner(selected_id) if selected_id else None
+        
         if learner_info:
             metrics = calculate_learner_metrics(selected_id)
             
@@ -81,8 +109,8 @@ with st.sidebar:
             else:
                 curr_phase = "Phase 4: Executive Readiness"
                 
-            st.markdown(f"**Current Role:** {learner_info.get('current_role', 'Manager')}")
-            st.markdown(f"**Target:** `{learner_info.get('target_level', 'Head of Analytics')}`")
+            st.markdown(f"👤 **{learner_info['name']}**")
+            st.caption(f"{learner_info.get('current_role', 'Manager')} ➔ `{learner_info.get('target_level', 'Leader')}`")
             st.markdown(f"**Phase:** *{curr_phase}*")
             
             col_sb1, col_sb2 = st.columns(2)
@@ -97,36 +125,63 @@ with st.sidebar:
                 else:
                     st.markdown(f"**Pace:** :blue[{pace_lbl}]")
                     
-            st.caption(f"Target Commitment: {learner_info.get('hours_per_week', 10)} hrs/week")
-    else:
-        st.warning("No learner profile active. Create a learner on the Home page.")
-        
-    st.markdown("---")
-    st.markdown("🔒 *All progress & submissions auto-saved to SQLite.*")
+            st.caption(f"Commitment: {learner_info.get('hours_per_week', 10)} hrs/week")
+            st.markdown("---")
+            if st.button("🚪 Log Out", key="sidebar_learner_logout_btn", use_container_width=True):
+                st.session_state["logged_in"] = False
+                st.session_state["user_role"] = None
+                st.session_state["active_learner_id"] = None
+                st.rerun()
+        else:
+            st.warning("Learner profile not found.")
+            if st.button("Return to Login", key="sidebar_return_login"):
+                st.session_state["logged_in"] = False
+                st.session_state["user_role"] = None
+                st.session_state["active_learner_id"] = None
+                st.rerun()
+                
+        st.markdown("---")
+        st.markdown("🔒 *All progress & submissions auto-saved to SQLite.*")
 
-# Configure Page Navigation with st.navigation
-pages = {
-    "Learner Setup": [
-        st.Page("pages/1_Home.py", title="Home / Learners", icon="👥"),
-        st.Page("pages/2_Placement.py", title="Placement Diagnostic", icon="🧭"),
-    ],
-    "Curriculum & Practice": [
-        st.Page("pages/3_Dashboard.py", title="Executive Dashboard", icon="📊"),
-        st.Page("pages/4_Learn.py", title="Learn & Tutor", icon="📖"),
-        st.Page("pages/5_Lab.py", title="Hands-On Lab", icon="🧪"),
-        st.Page("pages/6_Quiz.py", title="Spaced Review Quiz", icon="🔁"),
-        st.Page("pages/7_Mastery.py", title="Mastery Gate", icon="🏆"),
-    ],
-    "Portfolio & Career": [
-        st.Page("pages/8_Projects.py", title="Projects & Submissions", icon="📁"),
-        st.Page("pages/9_Portfolio.py", title="Executive Portfolio", icon="💼"),
-        st.Page("pages/10_Mock_Interview.py", title="Mock Interview Drill", icon="🎙️"),
-        st.Page("pages/11_Career_Readiness.py", title="Career Readiness", icon="🚀"),
-    ],
-    "Management": [
-        st.Page("pages/12_Admin.py", title="Administration", icon="⚙️"),
+# Configure Page Navigation with st.navigation based on authentication state
+if not st.session_state.get("logged_in"):
+    # Non-authenticated users only have access to Login & Profile creation
+    pages = [
+        st.Page("pages/1_Home.py", title="Sign In & Register", icon="🔐"),
     ]
-}
+elif st.session_state.get("user_role") == "admin":
+    # Administrator view: Administration console first, with curriculum preview
+    pages = {
+        "Administration": [
+            st.Page("pages/12_Admin.py", title="Administration Console", icon="⚙️"),
+        ],
+        "Learner Preview": [
+            st.Page("pages/3_Dashboard.py", title="Executive Dashboard", icon="📊"),
+            st.Page("pages/4_Learn.py", title="Learn & Tutor", icon="📖"),
+            st.Page("pages/5_Lab.py", title="Hands-On Lab", icon="🧪"),
+        ]
+    }
+else:
+    # Logged in Learner: Full 90-day accelerator curriculum, labs, portfolio & career
+    pages = {
+        "Curriculum & Practice": [
+            st.Page("pages/3_Dashboard.py", title="Executive Dashboard", icon="📊"),
+            st.Page("pages/4_Learn.py", title="Learn & Tutor", icon="📖"),
+            st.Page("pages/5_Lab.py", title="Hands-On Lab", icon="🧪"),
+            st.Page("pages/6_Quiz.py", title="Spaced Review Quiz", icon="🔁"),
+            st.Page("pages/7_Mastery.py", title="Mastery Gate", icon="🏆"),
+        ],
+        "Portfolio & Career": [
+            st.Page("pages/8_Projects.py", title="Projects & Submissions", icon="📁"),
+            st.Page("pages/9_Portfolio.py", title="Executive Portfolio", icon="💼"),
+            st.Page("pages/10_Mock_Interview.py", title="Mock Interview Drill", icon="🎙️"),
+            st.Page("pages/11_Career_Readiness.py", title="Career Readiness", icon="🚀"),
+        ],
+        "Learner Setup": [
+            st.Page("pages/2_Placement.py", title="Placement Diagnostic", icon="🧭"),
+            st.Page("pages/1_Home.py", title="My Profile", icon="👤"),
+        ]
+    }
 
 pg = st.navigation(pages)
 pg.run()
