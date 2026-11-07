@@ -61,6 +61,7 @@ def test_google_drive_sync_ledger():
 
 def test_registration_flow_with_email_and_password():
     lid = "test_auth_full_user"
+    delete_learner(lid)
     email = "full.auth@leadership.io"
     password = "MyStrongPassword@99"
     encrypted = encrypt_password(password)

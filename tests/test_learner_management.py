@@ -10,6 +10,7 @@ from config.settings import PROJECT_ROOT
 def test_record_and_get_learner_last_active():
     """Verifies that learner activity is recorded and retrieved properly."""
     lid = "test_active_user"
+    delete_learner(lid)
     create_learner(
         learner_id=lid,
         name="Test Active User",
@@ -44,6 +45,7 @@ def test_get_all_learners_with_activity():
 def test_delete_learner_cascading():
     """Verifies that delete_learner removes the profile and all related telemetry rows."""
     lid = "test_purge_user"
+    delete_learner(lid)
     create_learner(
         learner_id=lid,
         name="Test Purge User",

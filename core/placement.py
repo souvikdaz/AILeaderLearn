@@ -165,6 +165,8 @@ def record_diagnostic_result(
                 now if status == "in_progress" else None
             ), db_path=db_path)
             
+    # Purge any existing diagnostic draft upon final submission
+    delete_diagnostic_draft(learner_id, db_path=db_path)
     return result
 
 def get_learner_diagnostic(learner_id: str, db_path: Optional[Path] = None) -> Optional[Dict[str, Any]]:
@@ -179,3 +181,44 @@ def get_learner_diagnostic(learner_id: str, db_path: Optional[Path] = None) -> O
     if r.get("answers"):
         r["answers"] = json.loads(r["answers"])
     return r
+
+def has_completed_diagnostic(learner_id: str, db_path: Optional[Path] = None) -> bool:
+    """Checks whether the learner has completed and submitted the diagnostic."""
+    if not learner_id:
+        return False
+    rows = execute_query("SELECT COUNT(*) AS c FROM diagnostic_results WHERE learner_id = ?", (learner_id,), db_path=db_path)
+    return bool(rows and rows[0]["c"] > 0)
+
+def save_diagnostic_draft(
+    learner_id: str,
+    answers: Dict[str, Any],
+    db_path: Optional[Path] = None
+) -> None:
+    """Saves unsubmitted diagnostic answers so the learner can resume later."""
+    from datetime import datetime
+    clean_answers = {k: int(v) for k, v in answers.items() if v is not None}
+    now = datetime.now().isoformat()
+    sql = """
+    INSERT INTO diagnostic_drafts (learner_id, draft_answers, updated_at)
+    VALUES (?, ?, ?)
+    ON CONFLICT(learner_id) DO UPDATE SET
+        draft_answers = excluded.draft_answers,
+        updated_at = excluded.updated_at
+    """
+    execute_write(sql, (learner_id, json.dumps(clean_answers), now), db_path=db_path)
+
+def get_diagnostic_draft(learner_id: str, db_path: Optional[Path] = None) -> Dict[str, int]:
+    """Retrieves saved draft answers for a learner."""
+    if not learner_id:
+        return {}
+    rows = execute_query("SELECT draft_answers FROM diagnostic_drafts WHERE learner_id = ?", (learner_id,), db_path=db_path)
+    if not rows:
+        return {}
+    try:
+        return json.loads(rows[0]["draft_answers"])
+    except Exception:
+        return {}
+
+def delete_diagnostic_draft(learner_id: str, db_path: Optional[Path] = None) -> None:
+    """Deletes any in-progress diagnostic draft for a learner."""
+    execute_write("DELETE FROM diagnostic_drafts WHERE learner_id = ?", (learner_id,), db_path=db_path)

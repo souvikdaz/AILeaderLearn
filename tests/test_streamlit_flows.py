@@ -109,3 +109,32 @@ def test_admin_manage_learner_profiles_tab():
     assert not at.exception
     # Check tabs render
     assert len(at.tabs) > 0
+
+def test_learner_without_diagnostic_dashboard_gated():
+    """Verifies that an uncompleted learner accessing Dashboard is stopped with a warning."""
+    from core.db import create_learner, delete_learner
+    test_lid = "test_gated_learner"
+    delete_learner(test_lid)
+    create_learner(
+        learner_id=test_lid,
+        name="Gated Learner",
+        track_id="data_ai_leadership",
+        current_role="Analyst",
+        years_of_experience=3,
+        target_level="Leader",
+        industry="Tech",
+        tools_known=["Excel"],
+        hours_per_week=10,
+        start_date="2026-11-01"
+    )
+    try:
+        at = AppTest.from_file(str(PROJECT_ROOT / "pages/3_Dashboard.py"), default_timeout=15)
+        at.session_state["logged_in"] = True
+        at.session_state["user_role"] = "learner"
+        at.session_state["active_learner_id"] = test_lid
+        at.run()
+        assert not at.exception
+        assert len(at.warning) > 0
+        assert "Placement Diagnostic Required" in at.warning[0].value
+    finally:
+        delete_learner(test_lid)

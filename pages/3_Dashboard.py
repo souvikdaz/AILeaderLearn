@@ -18,11 +18,19 @@ from core.progress_tracker import (
     generate_misconception_heatmap, generate_pace_comparison_chart
 )
 
+from core.placement import has_completed_diagnostic
+
 st.title("📊 Executive Dashboard")
 
 learner_id = st.session_state.get("active_learner_id")
 if not learner_id:
     st.warning("Please select or create a learner on the Home page.")
+    st.stop()
+
+if st.session_state.get("user_role") != "admin" and not has_completed_diagnostic(learner_id):
+    st.warning("🧭 **Placement Diagnostic Required:** Please complete and submit your placement diagnostic first to unlock your executive dashboard.")
+    if st.button("🧭 Go to Placement Diagnostic", type="primary"):
+        st.switch_page("pages/2_Placement.py")
     st.stop()
 
 learner = get_learner(learner_id)

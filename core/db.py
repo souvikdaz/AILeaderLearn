@@ -34,6 +34,16 @@ def init_db(db_path: Optional[Path] = None) -> None:
     if "password_hash" not in cols:
         cursor.execute("ALTER TABLE learners ADD COLUMN password_hash TEXT;")
         
+    # Ensure diagnostic_drafts table exists
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS diagnostic_drafts (
+        learner_id TEXT PRIMARY KEY,
+        draft_answers TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY (learner_id) REFERENCES learners(id)
+    );
+    """)
+        
     conn.commit()
     conn.close()
 
@@ -214,6 +224,7 @@ def delete_learner(learner_id: str, db_path: Optional[Path] = None) -> bool:
         "quiz_reviews",
         "lesson_progress",
         "module_progress",
+        "diagnostic_drafts",
         "diagnostic_results",
         "learners"
     ]

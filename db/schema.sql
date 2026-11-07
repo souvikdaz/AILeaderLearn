@@ -30,6 +30,13 @@ CREATE TABLE IF NOT EXISTS diagnostic_results (
     FOREIGN KEY (learner_id) REFERENCES learners(id)
 );
 
+CREATE TABLE IF NOT EXISTS diagnostic_drafts (
+    learner_id TEXT PRIMARY KEY,
+    draft_answers TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    FOREIGN KEY (learner_id) REFERENCES learners(id)
+);
+
 CREATE TABLE IF NOT EXISTS module_progress (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     learner_id TEXT NOT NULL,
