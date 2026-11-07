@@ -213,3 +213,114 @@ lessons:
         misconception_name: "Valuing Model Complexity over Incremental ROI"
         error_type: "leadership_judgment"
         re_teach: "Never deploy complex ML when a simple rule of thumb achieves 90% of the value at 5% of the maintenance cost. Baseline comparison proves incremental ROI."
+
+  - id: "m3_l5"
+    title: "From 'Report_FINAL_v2.xlsx' to Git: Commits, Branches & History"
+    estimated_minutes: 15
+    concept: "Distributed Version Control (Git) vs Spreadsheet Version Chaos"
+    definition: "Git is a distributed version control system that records line-by-line snapshots of code and queries over time, enabling teams to branch, collaborate, and roll back broken changes."
+    why_it_matters: "Without Git, teams suffer from spreadsheet version chaos, overwriting each other's formulas and losing historical audit trails for financial reports."
+    analogy: "Git is like having an automated black box flight recorder for your team's code, capturing every modification with an indelible timestamp."
+    explanation: >
+      Every reporting manager has experienced spreadsheet version chaos. 
+      You find files named 'Monthly_Churn_Final_v2_edit_FINAL_v3.xlsx' on a shared network drive. 
+      Nobody knows which spreadsheet is the audited truth, or who altered the retention formula last Tuesday. 
+      Git solves this problem permanently. 
+      In Git, every change is bundled into an atomic Commit with a descriptive message and unique cryptographic hash. 
+      Instead of modifying shared files directly, analysts create an isolated Branch. 
+      They test changes in their branch without risking the production repository. 
+      If an error slips in, `git log` and `git diff` reveal the exact line changed, while `git revert` undoes the mistake in seconds.
+    worked_example:
+      context: "A leader's essential Git terminal commands for tracking analytical changes."
+      code_or_query: |
+        # 1. Check current repository status
+        git status
+
+        # 2. Create and switch to an isolated feature branch
+        git checkout -b feature/churn-recalculation
+
+        # 3. Stage modified files and record an atomic commit
+        git add models/churn_calculation.py
+        git commit -m "fix(churn): exclude trial accounts from denominator"
+
+        # 4. View chronological audit history
+        git log --oneline -n 3
+      line_by_line:
+        - line: "git status"
+          explanation: "Displays modified and untracked files in your working directory."
+        - line: "git checkout -b feature/churn-recalculation"
+          explanation: "Creates and switches to an isolated workspace, preventing accidental edits to the production main branch."
+        - line: "git add models/churn_calculation.py"
+          explanation: "Stages the specific modified script, preparing it for inclusion in the next commit snapshot."
+        - line: "git commit -m 'fix(churn): exclude trial accounts from denominator'"
+          explanation: "Permanently records the change with an explanatory message documenting the business rationale."
+        - line: "git log --oneline -n 3"
+          explanation: "Displays the last 3 commit hashes and summaries for rapid audit verification."
+    leader_questions:
+      what_to_ask: "Are our analytical models and SQL scripts tracked in a Git repository with descriptive commit messages?"
+      good_answer: "Yes, all models live in our Git repo with semantic commit messages and branch naming conventions."
+      red_flag: "Our analysts keep their scripts in local desktop folders and email updated versions as attachments."
+    check_questions:
+      - id: "m3_l5_q1"
+        prompt: "Why should an analytics leader prohibit team members from working directly on the 'main' branch in Git?"
+        options:
+          - "Because the main branch only accepts C++ code."
+          - "To prevent unreviewed, breaking changes from immediately impacting production executive reporting and data pipelines."
+          - "Because Git deletes repositories if more than one person edits main."
+          - "Because main branches cost $10 per day on GitHub."
+        correct_index: 1
+        misconception_name: "Committing Directly to Main Branch"
+        error_type: "version_control_governance"
+        re_teach: "Directly editing main bypasses peer review and automated testing. Feature branches isolate development until changes are verified."
+
+  - id: "m3_l6"
+    title: "The Leader's Pull Request (PR) Review: Reading Diffs & Protecting Main"
+    estimated_minutes: 15
+    concept: "GitHub Pull Requests (PRs), Code Reviews & Branch Protection"
+    definition: "A GitHub Pull Request (PR) is a formal proposal to merge code from a feature branch into the main branch, serving as the peer review quality gate."
+    why_it_matters: "A leader who can read a Git diff catches broken metrics, join fan-outs, and unintended filter changes before they reach the C-suite."
+    analogy: "A Pull Request is like an executive redline memo: green lines show proposed additions, red lines show deletions, and stakeholders must sign off before publication."
+    explanation: >
+      As an analytics leader, you do not need to write every line of production code. 
+      However, you must be able to conduct a Pull Request (PR) review on GitHub. 
+      When an analyst completes a task, they open a PR. 
+      GitHub displays a Diff: red lines with a minus sign show deleted code; green lines with a plus sign show new code. 
+      Apply the Three-Point Leader PR Audit:
+      1) Logic and Grain: Did the analyst alter a WHERE filter or add a join that multiplies row counts?
+      2) Automated CI Checks: Did the automated test suite (unit tests and schema contracts) pass with green checkmarks?
+      3) Documentation: Did the author explain why the change was made and link the relevant business ticket?
+      Enforce GitHub Branch Protection rules so that no code merges without an approved review.
+    worked_example:
+      context: "Auditing a Git diff in a GitHub Pull Request."
+      code_or_query: |
+        -- GitHub Pull Request Diff View:
+        @@ -14,3 +14,3 @@
+        - WHERE order_date >= '2023-01-01' AND is_refunded = 0
+        + WHERE order_date >= '2024-01-01'
+        -- LEADER AUDIT CATCH:
+        -- Analyst accidentally dropped 'AND is_refunded = 0', causing refunded orders to leak into revenue!
+      line_by_line:
+        - line: "@@ -14,3 +14,3 @@"
+          explanation: "Coordinates indicating the line numbers being modified in the original and updated files."
+        - line: "- WHERE order_date >= '2023-01-01' AND is_refunded = 0"
+          explanation: "Red deletion: the original line that included the vital fraud and refund exclusion filter."
+        - line: "+ WHERE order_date >= '2024-01-01'"
+          explanation: "Green addition: updated the date filter, but omitted 'is_refunded = 0', creating a revenue inflation bug."
+        - line: "-- LEADER AUDIT CATCH:"
+          explanation: "The leader spots the omitted refund filter in the diff review and requests revisions before merging."
+    leader_questions:
+      what_to_ask: "What branch protection rules are configured on our GitHub repositories to safeguard production data marts?"
+      good_answer: "We require at least one senior peer review approval and passing CI tests before any PR can merge into main."
+      red_flag: "Anyone on the team can push directly to main at any time without review."
+    check_questions:
+      - id: "m3_l6_q1"
+        prompt: "When reviewing a Git diff on GitHub, what do red and green lines signify?"
+        options:
+          - "Red indicates syntax errors; green indicates approved lines."
+          - "Red lines indicate code being removed; green lines indicate new code being added in the proposed Pull Request."
+          - "Red lines run on CPU; green lines run on GPU."
+          - "Red lines are written by contractors; green lines are written by employees."
+        correct_index: 1
+        misconception_name: "Confusing Git Diffs with Compiler Errors"
+        error_type: "git_diff_reading"
+        re_teach: "In Git diffs, red minus lines represent existing code being deleted, and green plus lines represent new code being introduced."

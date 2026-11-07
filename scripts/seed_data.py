@@ -59,7 +59,7 @@ def seed_database(db_path: Path = None):
         "diag_sql_1": 0, "diag_sql_2": 0, "diag_sql_3": 1, "diag_sql_4": 1, "diag_sql_5": 0, # SQL 40%
         "diag_python_1": 0, "diag_python_2": 1, "diag_python_3": 0, "diag_python_4": 0, # Python 25%
         "diag_ai_1": 1, "diag_ai_2": 1, "diag_ai_3": 1, "diag_ai_4": 0, # AI 75%
-        "diag_lead_1": 1, "diag_lead_2": 1, "diag_lead_3": 1, "diag_lead_4": 1, "diag_lead_5": 1 # Lead 100%
+        "diag_lead_1": 1, "diag_lead_2": 1, "diag_lead_3": 1, "diag_lead_4": 1, "diag_lead_5": 1, "diag_lead_6": 1 # Lead 100%
     }
     record_diagnostic_result("priya_sharma", priya_answers, db_path=db_path)
     
@@ -188,7 +188,7 @@ Transitioning to automated ELT recovers 80 monthly analyst hours ($72,000 annual
         "diag_sql_1": 1, "diag_sql_2": 1, "diag_sql_3": 1, "diag_sql_4": 1, "diag_sql_5": 1, # 100% -> Tests out M1 & M2!
         "diag_python_1": 1, "diag_python_2": 1, "diag_python_3": 1, "diag_python_4": 1, # 100% -> Tests out M3!
         "diag_ai_1": 1, "diag_ai_2": 1, "diag_ai_3": 1, "diag_ai_4": 1, # 100%
-        "diag_lead_1": 1, "diag_lead_2": 1, "diag_lead_3": 1, "diag_lead_4": 1, "diag_lead_5": 1 # 100%
+        "diag_lead_1": 1, "diag_lead_2": 1, "diag_lead_3": 1, "diag_lead_4": 1, "diag_lead_5": 1, "diag_lead_6": 1 # 100%
     }
     record_diagnostic_result("marcus_vance", marcus_answers, db_path=db_path)
     

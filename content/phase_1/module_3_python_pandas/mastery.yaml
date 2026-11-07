@@ -37,8 +37,20 @@ questions:
       - "Asking the AI to write all scripts using only one-letter variable names."
       - "Refusing to allow any AI tools to be used by the analytics team."
     correct_index: 1
-    points: 20
+    points: 15
     concept: "AI Code Verification Methodology"
+
+  - id: "m3_mc_git"
+    type: "multiple_choice"
+    prompt: "An analyst opens a GitHub Pull Request to update a quarterly revenue calculation. Why should an analytics leader enforce 'Branch Protection Rules' on the production repository?"
+    options:
+      - "To prevent unreviewed code from being pushed directly to the main production branch, requiring at least one peer approval and passing automated tests."
+      - "To restrict GitHub repository access exclusively to employees with 10+ years of experience."
+      - "Because Git branches expire after 48 hours unless protected."
+      - "To encrypt the repository with a password known only to the CEO."
+    correct_index: 0
+    points: 15
+    concept: "GitHub Branch Protection & PR Governance"
 
   - id: "m3_mc_code_reading"
     type: "code_reading"

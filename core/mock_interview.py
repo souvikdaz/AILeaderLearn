@@ -104,6 +104,16 @@ LEADERSHIP_INTERVIEW_QUESTIONS = [
         "framework": "Technical Competence + Commercial Translation + Behavioral Judgment",
         "rubric_criteria": ["commercial", "business problem", "translation", "rubric", "communication", "coaching"],
         "sample_strong_response": "In technical interviews, I present a real ambiguous business crisis rather than leetcode puzzles. I ask them: 'Revenue dropped 10%—what are your first three queries?' I look for candidates who explain the commercial 'why' before the technical 'how', who proactively consider data cleanliness, and who speak in clear executive language."
+    },
+    {
+        "id": "q11_git_governance",
+        "category": "Engineering Governance",
+        "title": "Establishing Git & Code Review Governance",
+        "is_two_minute_drill": False,
+        "prompt": "You take over an analytics team that currently shares SQL scripts and Python notebooks via email and local network folders. How do you lead the transition to a modern Git and GitHub version control workflow without overwhelming non-engineering analysts?",
+        "framework": "Change Management -> Tooling Onboarding -> Branching Standards -> PR Review Culture",
+        "rubric_criteria": ["version control", "pull request", "branch protection", "change management", "training", "audit trail"],
+        "sample_strong_response": "I frame the transition around eliminating painful spreadsheet version clashes rather than enforcing software engineering dogma. I host a hands-on workshop demonstrating GitHub Desktop's visual interface so analysts don't need complex terminal commands. We establish clear branch protection rules on main, mandate that all quarterly reporting queries go through peer-reviewed Pull Requests, and institute a culture of blameless reviews focused on business logic and data grain."
     }
 ]
 

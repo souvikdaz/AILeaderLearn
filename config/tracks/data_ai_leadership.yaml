@@ -33,6 +33,9 @@ learner_baseline:
     - excel_concept: "Financial Pro Formas & What-If Tables"
       leadership_concept: "AI/ML Business Cases, ROI Modeling, and Experimentation Frameworks"
       business_impact: "Preventing costly AI vanity projects through disciplined pre-investment valuation."
+    - excel_concept: "Multiple 'Report_v2_FINAL_edit.xlsx' Files on Shared Drives"
+      leadership_concept: "Git Version Control, Feature Branching, and GitHub Pull Request (PR) Reviews"
+      business_impact: "Eliminates version chaos, establishes an indelible audit trail of who changed what, and prevents unreviewed code from reaching executives."
 
 skills_by_market_demand:
   - rank: 1
@@ -121,10 +124,12 @@ phases:
         description: "Translate Excel VLOOKUP and pivot concepts to relational SQL joins, aggregations, and query audits."
       - id: module_3
         code: "M3"
-        title: "Python Notebooks & pandas for Analytics Leaders"
+        title: "Python Notebooks, Git & GitHub for Analytics Leaders"
         day_range: [11, 15]
-        skills: ["Python for analysts: running and modifying notebooks, pandas basics, debugging with AI assistance"]
-        description: "Navigate Jupyter notebooks, inspect pandas data structures, diagnose errors, and verify AI-generated scripts."
+        skills: 
+          - "Python for analysts: running and modifying notebooks, pandas basics, debugging with AI assistance"
+          - "Version control (Git & GitHub), code reviews, and CI/CD quality gates"
+        description: "Navigate Jupyter notebooks, inspect pandas data structures, master Git version control, review GitHub Pull Requests, and verify AI-generated scripts."
       - id: module_4
         code: "M4"
         title: "Metrics, KPIs, and Dashboard Reading"

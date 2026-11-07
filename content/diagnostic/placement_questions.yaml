@@ -393,3 +393,19 @@ questions:
     correct_index: 1
     explanation: >
       Executives care about decisions, capital allocation, risk, and commercial velocity. Technical architecture belongs in an appendix; the executive narrative must focus on business value.
+
+  - id: "diag_lead_6"
+    category: "leadership_scenarios"
+    pillar: "Git & Version Control"
+    prompt: >
+      A data team currently manages 40 critical SQL and Python scripts by emailing attachments and saving files named 
+      'revenue_model_final_v2_edit.py' on a shared drive. Yesterday, an analyst accidentally overwrote the production calculation, 
+      causing an erroneous financial metric to reach the Board. What version control governance protocol do you institute immediately?
+    options:
+      - "Instruct everyone to rename files with their initials and date at the end of each day."
+      - "Migrate all analytical code to a centralized Git/GitHub repository with branch protection rules, requiring feature branching, automated tests, and peer-reviewed Pull Requests before merging to production."
+      - "Lock the shared drive folder with a password that only the Chief Technology Officer knows."
+      - "Ban the use of Python and mandate that all reports be done in manual paper ledgers."
+    correct_index: 1
+    explanation: >
+      Git and GitHub provide distributed version control, immutable commit histories, branch protection, and collaborative peer reviews. This eliminates accidental overrides and establishes complete line-level auditability.
