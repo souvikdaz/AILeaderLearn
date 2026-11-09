@@ -54,7 +54,7 @@ def seed_database(db_path: Path = None, skip_init: bool = False):
         hours_per_week=10,
         start_date=s_start,
         email="souvik.d.das@gmail.com",
-        password_hash=encrypt_password("leader_2025"),
+        password_hash=encrypt_password("Flound3r"),
         db_path=db_path
     )
     
