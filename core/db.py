@@ -17,7 +17,7 @@ def get_db_connection(db_path: Optional[Path] = None) -> sqlite3.Connection:
     conn.execute("PRAGMA journal_mode = WAL;")
     return conn
 
-def init_db(db_path: Optional[Path] = None) -> None:
+def init_db(db_path: Optional[Path] = None, skip_seed: bool = False) -> None:
     """Initializes the database schema if tables do not exist."""
     conn = get_db_connection(db_path)
     with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
@@ -43,8 +43,21 @@ def init_db(db_path: Optional[Path] = None) -> None:
         FOREIGN KEY (learner_id) REFERENCES learners(id)
     );
     """)
-        
     conn.commit()
+    
+    # Auto-seed default learners if main database has no learners (e.g. fresh deploy on Streamlit Cloud)
+    target_path = Path(db_path) if db_path else DB_PATH
+    if not skip_seed and (db_path is None or target_path.resolve() == DB_PATH.resolve()):
+        try:
+            learner_count = cursor.execute("SELECT COUNT(*) FROM learners;").fetchone()[0]
+            if learner_count == 0:
+                conn.close()
+                from scripts.seed_data import seed_database
+                seed_database(target_path, skip_init=True)
+                return
+        except Exception:
+            pass
+        
     conn.close()
 
 # Database Helper Functions

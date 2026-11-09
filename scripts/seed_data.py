@@ -17,9 +17,10 @@ from core.lab_runner import record_lab_attempt
 from core.submission_checker import save_and_evaluate_project
 from core.review_scheduler import schedule_module_concepts_for_review
 
-def seed_database(db_path: Path = None):
-    print("Initializing database...")
-    init_db(db_path)
+def seed_database(db_path: Path = None, skip_init: bool = False):
+    if not skip_init:
+        print("Initializing database...")
+        init_db(db_path, skip_seed=True)
     
     now = datetime.now()
     
@@ -36,9 +37,51 @@ def seed_database(db_path: Path = None):
         execute_write("DELETE FROM lesson_progress", db_path=db_path)
         execute_write("DELETE FROM module_progress", db_path=db_path)
         execute_write("DELETE FROM diagnostic_results", db_path=db_path)
+        execute_write("DELETE FROM diagnostic_drafts", db_path=db_path)
         execute_write("DELETE FROM learners", db_path=db_path)
         
-    print("Seeding Learner 1: Priya Sharma (Mid-Phase 1 with failed check and unfinished lab)...")
+    print("Seeding Learner 1: Souvik Das (Executive Leader - Unlocked Curriculum & Completed Diagnostic)...")
+    s_start = (now - timedelta(days=7)).date().isoformat()
+    l_souvik = create_learner(
+        learner_id="souvik_das",
+        name="Souvik Das",
+        track_id="data_ai_leadership",
+        current_role="Analytics & AI Leader",
+        years_of_experience=8,
+        target_level="Head of Analytics",
+        industry="Technology & Retail",
+        tools_known=["Excel (Advanced)", "SQL", "Python", "Power BI", "GenAI / LLMs"],
+        hours_per_week=10,
+        start_date=s_start,
+        email="souvik.d.das@gmail.com",
+        password_hash=encrypt_password("leader_2025"),
+        db_path=db_path
+    )
+    
+    # Souvik Completed Placement Diagnostic: 100% across all pillars (Unlocks full curriculum)
+    souvik_answers = {
+        "diag_excel_1": 1, "diag_excel_2": 1, "diag_excel_3": 2, "diag_excel_4": 1, # Excel 100%
+        "diag_sql_1": 1, "diag_sql_2": 1, "diag_sql_3": 1, "diag_sql_4": 1, "diag_sql_5": 1, # SQL 100%
+        "diag_python_1": 1, "diag_python_2": 1, "diag_python_3": 1, "diag_python_4": 1, # Python 100%
+        "diag_ai_1": 1, "diag_ai_2": 1, "diag_ai_3": 1, "diag_ai_4": 1, # AI 100%
+        "diag_lead_1": 1, "diag_lead_2": 1, "diag_lead_3": 1, "diag_lead_4": 1, "diag_lead_5": 1, "diag_lead_6": 1 # Lead 100%
+    }
+    record_diagnostic_result("souvik_das", souvik_answers, db_path=db_path)
+    
+    # Progress records for Souvik
+    for lid in ["m1_l1", "m1_l2", "m1_l3", "m1_l4"]:
+        execute_write(
+            "INSERT INTO lesson_progress (learner_id, module_id, lesson_id, status, chat_history, completed_at) VALUES (?, 'module_1', ?, 'completed', '[]', ?)",
+            ("souvik_das", lid, (now - timedelta(days=2)).isoformat()),
+            db_path=db_path
+        )
+    execute_write(
+        "UPDATE learners SET last_active_at = ? WHERE id = 'souvik_das'",
+        (now.isoformat(),),
+        db_path=db_path
+    )
+
+    print("Seeding Learner 2: Priya Sharma (Mid-Phase 1 with failed check and unfinished lab)...")
     p1_start = (now - timedelta(days=12)).date().isoformat()
     l1 = create_learner(
         learner_id="priya_sharma",
